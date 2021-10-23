@@ -5,22 +5,23 @@ const day08 = @import("./days/day08.zig");
 const std = @import("std");
 
 pub fn main() !void {
-    var arenaAllocator = std.heap.ArenaAllocator.init(std.heap.c_allocator);
-    defer arenaAllocator.deinit();
-    var alloc = &arenaAllocator.allocator;
+    var alloc = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer alloc.deinit();
+    var allocator = &alloc.allocator;
 
-    var contents = try Contents.load(alloc);
+    var contents = try Contents.load(allocator);
     defer contents.discard();
 
-    var out = try std.ArrayList(u8).initCapacity(alloc, 8192);
+    var out = try std.ArrayList(u8).initCapacity(allocator, 8192);
+    defer out.deinit();
     var writer = out.writer();
 
     var start = std.time.nanoTimestamp();
 
-    try day01.run(@TypeOf(writer), contents.day01, &writer, alloc);
+    try day01.run(@TypeOf(writer), contents.day01, &writer, allocator);
     try day02.run(@TypeOf(writer), contents.day02, &writer);
-    try day07.run(@TypeOf(writer), contents.day07, &writer, alloc);
-    try day08.run(@TypeOf(writer), contents.day08, &writer, alloc);
+    try day07.run(@TypeOf(writer), contents.day07, &writer, allocator);
+    try day08.run(@TypeOf(writer), contents.day08, &writer, allocator);
 
     var end = std.time.nanoTimestamp();
 
