@@ -11,7 +11,7 @@ const Bag = struct {
         var res: usize = 0;
 
         for (b.contains.items) |contained| {
-            res += contained.count * (1 + contained.bag.val.total_contains());
+            res += contained.count * (1 + contained.bag.inner.val.total_contains());
         }
 
         return res;
@@ -46,11 +46,11 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 fn deinitBagsContents(bags: std.StringHashMap(RC(Bag))) void {
     var it = bags.valueIterator();
     while (it.next()) |bag| {
-        for (bag.val.contains.items) |child| {
+        for (bag.inner.val.contains.items) |child| {
             child.bag.destroy();
         }
-        bag.val.contains.deinit();
-        bag.val.parents.deinit();
+        bag.inner.val.contains.deinit();
+        bag.inner.val.parents.deinit();
         bag.destroy();
     }
 }
@@ -67,7 +67,7 @@ fn part1(bags: std.StringHashMap(RC(Bag)), allocator: *std.mem.Allocator) !usize
     var options = std.ArrayList(*Bag).init(allocator);
     defer options.deinit();
     var startBag = bags.getPtr(start) orelse unreachable;
-    try options.appendSlice(startBag.val.parents.items);
+    try options.appendSlice(startBag.inner.val.parents.items);
 
     while (options.popOrNull()) |current| {
         if (!seen.contains(current.colour)) {
@@ -85,7 +85,7 @@ fn part2(bags: std.StringHashMap(RC(Bag))) usize {
 
     var startBag = bags.getPtr(start) orelse unreachable;
 
-    return startBag.val.total_contains();
+    return startBag.inner.val.total_contains();
 }
 
 const bagCreationError = error{ ColourNotFound, ChildCountNotFound, ChildAdjectiveNotFound, ChildColourNotFound };
@@ -131,8 +131,8 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
 
             var childBag = bags.get(childString) orelse unreachable;
 
-            try entry.val.contains.append(Contents{ .count = childCount, .bag = childBag.copy() });
-            try childBag.val.parents.append(entry.val);
+            try entry.inner.val.contains.append(Contents{ .count = childCount, .bag = childBag.copy() });
+            try childBag.inner.val.parents.append(&entry.inner.val);
         }
     }
 
