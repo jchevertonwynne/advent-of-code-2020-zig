@@ -49,6 +49,8 @@ fn deinitBagsContents(bags: std.StringHashMap(RC(Bag))) void {
         for (bag.val.contains.items) |child| {
             child.bag.destroy();
         }
+        bag.val.contains.deinit();
+        bag.val.parents.deinit();
         bag.destroy();
     }
 }
@@ -57,11 +59,13 @@ fn part1(bags: std.StringHashMap(RC(Bag)), allocator: *std.mem.Allocator) !usize
     const start = "shiny gold";
 
     var seen = std.StringHashMap(void).init(allocator);
+    defer seen.deinit();
     try seen.put(start, {});
 
     var count: usize = 0;
 
     var options = std.ArrayList(*Bag).init(allocator);
+    defer options.deinit();
     var startBag = bags.getPtr(start) orelse unreachable;
     try options.appendSlice(startBag.val.parents.items);
 
