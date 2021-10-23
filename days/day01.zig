@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn run(comptime T: type, contents: []u8, out: *T, allocator: *std.mem.Allocator) !void {
+pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
     var numbers = try loadNumbers(contents, allocator);
@@ -12,9 +12,14 @@ pub fn run(comptime T: type, contents: []u8, out: *T, allocator: *std.mem.Alloca
     var end = std.time.nanoTimestamp();
 
     try out.print("problem one:\n", .{});
-    try out.print("\tpart 1:\t\t{d}\n", .{p1});
-    try out.print("\tpart 2:\t\t{d}\n", .{p2});
-    try out.print("\tduration:\t{d}ns\n", .{end - start});
+    try out.print("\tpart 1:\n", .{});
+    try out.print("\t\t{d}\n", .{p1});
+    try out.print("\tpart 2:\n", .{});
+    try out.print("\t\t{d}\n", .{p2});
+    try out.print("\tduration:\n", .{});
+    try out.print("\t\t{d}ms\n", .{@divFloor(end - start, 1_000_000)});
+    try out.print("\t\t{d}us\n", .{@divFloor(end - start, 1_000)});
+    try out.print("\t\t{d}ns\n", .{end - start});
 }
 
 fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !std.ArrayList(usize) {

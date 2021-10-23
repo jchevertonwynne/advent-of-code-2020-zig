@@ -1,7 +1,7 @@
 const std = @import("std");
 const ArrayList = std.ArrayList;
 
-pub fn run(comptime T: type, contents: []u8, out: *T, allocator: *std.mem.Allocator) !void {
+pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
     var machine = try Machine.fromString(contents, allocator);
@@ -13,9 +13,14 @@ pub fn run(comptime T: type, contents: []u8, out: *T, allocator: *std.mem.Alloca
     var end = std.time.nanoTimestamp();
 
     try out.print("problem eight:\n", .{});
-    try out.print("\tpart 1:\t\t{d}\n", .{p1});
-    try out.print("\tpart 2:\t\t{d}\n", .{p2});
-    try out.print("\tduration:\t{d}ns\n", .{end - start});
+    try out.print("\tpart 1:\n", .{});
+    try out.print("\t\t{d}\n", .{p1});
+    try out.print("\tpart 2:\n", .{});
+    try out.print("\t\t{d}\n", .{p2});
+    try out.print("\tduration:\n", .{});
+    try out.print("\t\t{d}ms\n", .{@divFloor(end - start, 1_000_000)});
+    try out.print("\t\t{d}us\n", .{@divFloor(end - start, 1_000)});
+    try out.print("\t\t{d}ns\n", .{end - start});
 }
 
 fn part1(machine: *Machine, allocator: *std.mem.Allocator) !isize {
@@ -26,7 +31,7 @@ fn part1(machine: *Machine, allocator: *std.mem.Allocator) !isize {
     return machine.accumulator;
 }
 
-const Uncompleteable = error { Uncompleteable };
+const Uncompleteable = error{Uncompleteable};
 
 fn part2(machine: *Machine, allocator: *std.mem.Allocator) !isize {
     var seen = ArrayList(bool).init(allocator);

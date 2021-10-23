@@ -1,6 +1,6 @@
 const std = @import("std");
 const util = @import("util.zig");
-const RC = util.ARC;
+const RC = util.RC;
 
 const Bag = struct {
     colour: []const u8,
@@ -20,7 +20,7 @@ const Bag = struct {
 
 const Contents = struct { count: usize, bag: RC(Bag) };
 
-pub fn run(comptime T: type, contents: []u8, out: *T, allocator: *std.mem.Allocator) !void {
+pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
     var bags = try createBags(contents, allocator);
@@ -33,9 +33,14 @@ pub fn run(comptime T: type, contents: []u8, out: *T, allocator: *std.mem.Alloca
     var end = std.time.nanoTimestamp();
 
     try out.print("problem seven:\n", .{});
-    try out.print("\tpart 1:\t\t{d}\n", .{p1});
-    try out.print("\tpart 2:\t\t{d}\n", .{p2});
-    try out.print("\tduration:\t{d}ns\n", .{end - start});
+    try out.print("\tpart 1:\n", .{});
+    try out.print("\t\t{d}\n", .{p1});
+    try out.print("\tpart 2:\n", .{});
+    try out.print("\t\t{d}\n", .{p2});
+    try out.print("\tduration:\n", .{});
+    try out.print("\t\t{d}ms\n", .{@divFloor(end - start, 1_000_000)});
+    try out.print("\t\t{d}us\n", .{@divFloor(end - start, 1_000)});
+    try out.print("\t\t{d}ns\n", .{end - start});
 }
 
 fn deinitBagsContents(bags: std.StringHashMap(RC(Bag))) void {

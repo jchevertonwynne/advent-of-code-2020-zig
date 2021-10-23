@@ -17,14 +17,17 @@ pub fn main() !void {
 
     var start = std.time.nanoTimestamp();
 
-    try day01.run(@TypeOf(writer), contents.day01, &writer, alloc);
-    try day02.run(@TypeOf(writer), contents.day02, &writer);
-    try day07.run(@TypeOf(writer), contents.day07, &writer, alloc);
-    try day08.run(@TypeOf(writer), contents.day08, &writer, alloc);
+    try day01.run(contents.day01, &writer, alloc);
+    try day02.run(contents.day02, &writer);
+    try day07.run(contents.day07, &writer, alloc);
+    try day08.run(contents.day08, &writer, alloc);
 
     var end = std.time.nanoTimestamp();
 
-    try writer.print("overall that took {d}ns or {d}ms\n", .{ end - start, @divFloor(end - start, 1_000_000) });
+    try writer.print("overall that took: {d}ns or {d}ms\n", .{ end - start, @divFloor(end - start, 1_000_000) });
+    try writer.print("\t{d}ms\n", .{@divFloor(end - start, 1_000_000)});
+    try writer.print("\t{d}us\n", .{@divFloor(end - start, 1_000)});
+    try writer.print("\t{d}ns\n", .{end - start});
 
     const stdout = std.io.getStdOut();
     defer stdout.close();
