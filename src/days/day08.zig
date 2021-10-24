@@ -80,6 +80,7 @@ const Machine = struct {
 
     fn fromString(source: []u8, allocator: *std.mem.Allocator) !Machine {
         var instructions = ArrayList(Instruction).init(allocator);
+        errdefer instructions.deinit();
 
         var lines = std.mem.tokenize(u8, source, "\n");
         while (lines.next()) |line| {

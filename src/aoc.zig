@@ -44,12 +44,21 @@ const Contents = struct {
 
     fn load(allocator: *std.mem.Allocator) !Contents {
         var dir = std.fs.cwd();
+        var day01String = try dir.readFileAlloc(allocator, "files/01.txt", std.math.maxInt(usize));
+        errdefer allocator.free(day01String);
+        var day02String = try dir.readFileAlloc(allocator, "files/02.txt", std.math.maxInt(usize));
+        errdefer allocator.free(day02String);
+        var day07String = try dir.readFileAlloc(allocator, "files/07.txt", std.math.maxInt(usize));
+        errdefer allocator.free(day07String);
+        var day08String = try dir.readFileAlloc(allocator, "files/08.txt", std.math.maxInt(usize));
+        errdefer allocator.free(day08String);
+        
         return Contents{
             .allocator = allocator,
-            .day01 = try dir.readFileAlloc(allocator, "files/01.txt", std.math.maxInt(usize)),
-            .day02 = try dir.readFileAlloc(allocator, "files/02.txt", std.math.maxInt(usize)),
-            .day07 = try dir.readFileAlloc(allocator, "files/07.txt", std.math.maxInt(usize)),
-            .day08 = try dir.readFileAlloc(allocator, "files/08.txt", std.math.maxInt(usize)),
+            .day01 = day01String,
+            .day02 = day02String,
+            .day07 = day07String,
+            .day08 = day08String,
         };
     }
 

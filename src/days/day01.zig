@@ -24,6 +24,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 
 fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !std.ArrayList(usize) {
     var numbers = std.ArrayList(usize).init(allocator);
+    errdefer numbers.deinit();
 
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {

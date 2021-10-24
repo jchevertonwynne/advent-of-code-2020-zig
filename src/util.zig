@@ -16,6 +16,10 @@ pub fn RC(comptime T: type) type {
             return Self{ .inner = inner, .alloc = allocator };
         }
 
+        pub fn weak(self: Self) *T {
+            return &self.inner.val;
+        }
+
         pub fn copy(self: Self) Self {
             self.inner.count += 1;
             return self;

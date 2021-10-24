@@ -1,17 +1,17 @@
 const std = @import("std");
-const util = @import("util.zig");
+const util = @import("../util.zig");
 const RC = util.RC;
 
 const Bag = struct {
     colour: []const u8,
     parents: std.ArrayList(*Bag),
-    contains: std.ArrayList(Contents),
+    children: std.ArrayList(Contents),
 
     fn total_contains(b: Bag) usize {
         var res: usize = 0;
 
-        for (b.contains.items) |contained| {
-            res += contained.count * (1 + contained.bag.inner.val.total_contains());
+        for (b.children.items) |child| {
+            res += child.count * (1 + child.bag.inner.val.total_contains());
         }
 
         return res;
@@ -92,6 +92,9 @@ const bagCreationError = error{ ColourNotFound, ChildCountNotFound, ChildAdjecti
 
 fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC(Bag)) {
     var bags = std.StringHashMap(RC(Bag)).init(allocator);
+    errdefer bags.deinit();
+    errdefer deinitBagsContents(bags);
+    try bags.ensureTotalCapacity(600);
 
     var lines = std.mem.tokenize(u8, source, "\n");
     while (lines.next()) |line| {
@@ -132,7 +135,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
             var childBag = bags.get(childString) orelse unreachable;
 
             try entry.inner.val.contains.append(Contents{ .count = childCount, .bag = childBag.copy() });
-            try childBag.inner.val.parents.append(&entry.inner.val);
+            try childBag.inner.val.parents.append(entry.weak());
         }
     }
 
