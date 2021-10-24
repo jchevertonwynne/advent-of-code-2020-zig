@@ -3,6 +3,7 @@ const day02 = @import("./days/day02.zig");
 const day07 = @import("./days/day07.zig");
 const day08 = @import("./days/day08.zig");
 const std = @import("std");
+const Contents = @import("util.zig").Contents;
 
 pub fn main() !void {
     var alloc = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -35,37 +36,4 @@ pub fn main() !void {
     try stdout.writer().writeAll(out.items);
 }
 
-const Contents = struct {
-    allocator: *std.mem.Allocator,
-    day01: []u8,
-    day02: []u8,
-    day07: []u8,
-    day08: []u8,
 
-    fn load(allocator: *std.mem.Allocator) !Contents {
-        var dir = std.fs.cwd();
-        var day01String = try dir.readFileAlloc(allocator, "files/01.txt", std.math.maxInt(usize));
-        errdefer allocator.free(day01String);
-        var day02String = try dir.readFileAlloc(allocator, "files/02.txt", std.math.maxInt(usize));
-        errdefer allocator.free(day02String);
-        var day07String = try dir.readFileAlloc(allocator, "files/07.txt", std.math.maxInt(usize));
-        errdefer allocator.free(day07String);
-        var day08String = try dir.readFileAlloc(allocator, "files/08.txt", std.math.maxInt(usize));
-        errdefer allocator.free(day08String);
-        
-        return Contents{
-            .allocator = allocator,
-            .day01 = day01String,
-            .day02 = day02String,
-            .day07 = day07String,
-            .day08 = day08String,
-        };
-    }
-
-    fn discard(c: Contents) void {
-        c.allocator.free(c.day01);
-        c.allocator.free(c.day02);
-        c.allocator.free(c.day07);
-        c.allocator.free(c.day08);
-    }
-};

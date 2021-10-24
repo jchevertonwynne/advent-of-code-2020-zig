@@ -46,10 +46,10 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 fn deinitBagsContents(bags: std.StringHashMap(RC(Bag))) void {
     var it = bags.valueIterator();
     while (it.next()) |bag| {
-        for (bag.inner.val.contains.items) |child| {
+        for (bag.inner.val.children.items) |child| {
             child.bag.destroy();
         }
-        bag.inner.val.contains.deinit();
+        bag.inner.val.children.deinit();
         bag.inner.val.parents.deinit();
         bag.destroy();
     }
@@ -101,7 +101,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
         var endOfColour = std.mem.indexOf(u8, line, " bags contain ") orelse return bagCreationError.ColourNotFound;
         var colour = line[0..endOfColour];
         if (!bags.contains(colour)) {
-            var newBag = Bag{ .colour = colour, .parents = std.ArrayList(*Bag).init(allocator), .contains = std.ArrayList(Contents).init(allocator) };
+            var newBag = Bag{ .colour = colour, .parents = std.ArrayList(*Bag).init(allocator), .children = std.ArrayList(Contents).init(allocator) };
 
             try bags.put(colour, try RC(Bag).new(newBag, allocator));
         }
@@ -128,13 +128,13 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
             var childCount = try std.fmt.parseInt(usize, childCountString, 10);
 
             if (!bags.contains(childString)) {
-                var newBag = Bag{ .colour = childString, .parents = std.ArrayList(*Bag).init(allocator), .contains = std.ArrayList(Contents).init(allocator) };
+                var newBag = Bag{ .colour = childString, .parents = std.ArrayList(*Bag).init(allocator), .children = std.ArrayList(Contents).init(allocator) };
                 try bags.put(childString, try RC(Bag).new(newBag, allocator));
             }
 
             var childBag = bags.get(childString) orelse unreachable;
 
-            try entry.inner.val.contains.append(Contents{ .count = childCount, .bag = childBag.copy() });
+            try entry.inner.val.children.append(Contents{ .count = childCount, .bag = childBag.copy() });
             try childBag.inner.val.parents.append(entry.weak());
         }
     }
