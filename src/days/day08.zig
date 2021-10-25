@@ -7,8 +7,11 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var machine = try Machine.fromString(contents, allocator);
     defer machine.instructions.deinit();
 
-    var p1 = try part1(&machine, allocator);
-    var p2 = try part2(&machine, allocator);
+    var seen = std.ArrayList(bool).init(allocator);
+    try seen.appendNTimes(false, machine.instructions.items.len);
+
+    var p1 = try part1(&machine, seen.items);
+    var p2 = try part2(&machine, seen.items);
 
     var end = std.time.nanoTimestamp();
 
@@ -23,23 +26,17 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     try out.print("\t\t{d}ns\n", .{end - start});
 }
 
-fn part1(machine: *Machine, allocator: *std.mem.Allocator) !isize {
-    var seen = ArrayList(bool).init(allocator);
-    defer seen.deinit();
-    _ = try machine.run_to_loop(&seen);
+fn part1(machine: *Machine, seen: []bool) !isize {
+    _ = try machine.run_to_loop(seen);
     defer machine.reset();
     return machine.accumulator;
 }
 
-const Uncompleteable = error{Uncompleteable};
-
-fn part2(machine: *Machine, allocator: *std.mem.Allocator) !isize {
-    var seen = ArrayList(bool).init(allocator);
-    defer seen.deinit();
+fn part2(machine: *Machine, seen: []bool) !?isize {
     var i: usize = 0;
     while (i < machine.instructions.items.len) : (i += 1) {
         if (transform(&machine.instructions.items[i])) {
-            if ((try machine.run_to_loop(&seen)) == .ReachedEnd) {
+            if ((try machine.run_to_loop(seen)) == .ReachedEnd) {
                 return machine.accumulator;
             }
 
@@ -48,7 +45,7 @@ fn part2(machine: *Machine, allocator: *std.mem.Allocator) !isize {
         }
     }
 
-    return Uncompleteable.Uncompleteable;
+    return null;
 }
 
 const I = enum { Acc, Jmp, Nop };
@@ -93,12 +90,19 @@ const Machine = struct {
                 num = try std.math.negate(num);
             }
 
+            var instruction: ?Instruction = null;
             if (std.mem.eql(u8, ins, "acc")) {
-                try instructions.append(Instruction{ .Acc = num });
+                instruction = Instruction{ .Acc = num };
             } else if (std.mem.eql(u8, ins, "jmp")) {
-                try instructions.append(Instruction{ .Jmp = num });
+                instruction = Instruction{ .Jmp = num };
             } else if (std.mem.eql(u8, ins, "nop")) {
-                try instructions.append(Instruction{ .Nop = num });
+                instruction = Instruction{ .Nop = num };
+            }
+            
+            if (instruction) |parsedInstruction| {
+                try instructions.append(parsedInstruction);
+            } else {
+                return error.UnparseableInstruction;
             }
         }
 
@@ -129,20 +133,22 @@ const Machine = struct {
         }
     }
 
-    fn run_to_loop(self: *Machine, seen: *ArrayList(bool)) !TerminationCondition {
-        seen.clearRetainingCapacity();
-        try seen.appendNTimes(false, self.instructions.items.len);
+    fn run_to_loop(self: *Machine, seen: []bool) !TerminationCondition {
+        var i: usize = 0;
+        while (i < seen.len) : (i += 1) {
+            seen[i] = false;
+        }
 
         while (true) {
             self.step();
             var ind = @bitCast(usize, self.index);
-            if (ind >= seen.items.len) {
+            if (ind >= self.instructions.items.len) {
                 return .ReachedEnd;
             }
-            if (seen.items[ind]) {
+            if (seen[ind]) {
                 return .Looped;
             }
-            seen.items[ind] = true;
+            seen[ind] = true;
         }
     }
 };

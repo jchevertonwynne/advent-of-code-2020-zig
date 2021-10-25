@@ -27,8 +27,8 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     defer bags.deinit();
     defer deinitBagsContents(bags);
 
-    var p1 = part1(bags, allocator);
-    var p2 = part2(bags);
+    var p1 = try part1(bags, allocator);
+    var p2 = try part2(bags);
 
     var end = std.time.nanoTimestamp();
 
@@ -66,7 +66,7 @@ fn part1(bags: std.StringHashMap(RC(Bag)), allocator: *std.mem.Allocator) !usize
 
     var options = std.ArrayList(*Bag).init(allocator);
     defer options.deinit();
-    var startBag = bags.getPtr(start) orelse unreachable;
+    var startBag = bags.getPtr(start) orelse return error.FailedToFindBag;
     try options.appendSlice(startBag.inner.val.parents.items);
 
     while (options.popOrNull()) |current| {
@@ -80,15 +80,13 @@ fn part1(bags: std.StringHashMap(RC(Bag)), allocator: *std.mem.Allocator) !usize
     return count;
 }
 
-fn part2(bags: std.StringHashMap(RC(Bag))) usize {
+fn part2(bags: std.StringHashMap(RC(Bag))) !usize {
     const start = "shiny gold";
 
-    var startBag = bags.getPtr(start) orelse unreachable;
+    var startBag = bags.getPtr(start) orelse return error.FailedToFindBag;
 
     return startBag.inner.val.total_contains();
 }
-
-const bagCreationError = error{ ColourNotFound, ChildCountNotFound, ChildAdjectiveNotFound, ChildColourNotFound };
 
 fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC(Bag)) {
     var bags = std.StringHashMap(RC(Bag)).init(allocator);
@@ -98,7 +96,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
 
     var lines = std.mem.tokenize(u8, source, "\n");
     while (lines.next()) |line| {
-        var endOfColour = std.mem.indexOf(u8, line, " bags contain ") orelse return bagCreationError.ColourNotFound;
+        var endOfColour = std.mem.indexOf(u8, line, " bags contain ") orelse return error.ColourNotFound;
         var colour = line[0..endOfColour];
         if (!bags.contains(colour)) {
             var newBag = Bag{ .colour = colour, .parents = std.ArrayList(*Bag).init(allocator), .children = std.ArrayList(Contents).init(allocator) };
@@ -106,7 +104,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
             try bags.put(colour, try RC(Bag).new(newBag, allocator));
         }
 
-        var entry = bags.get(colour) orelse unreachable;
+        var entry = bags.get(colour) orelse return error.BagMysteriouslyDisappeared;
 
         var rest = line[endOfColour + 14 ..];
 
@@ -120,9 +118,9 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
         while (children.next()) |child| {
             var parts = std.mem.tokenize(u8, child, " ");
 
-            var childCountString = parts.next() orelse return bagCreationError.ChildCountNotFound;
-            var childAdjective = parts.next() orelse return bagCreationError.ChildAdjectiveNotFound;
-            var childColour = parts.next() orelse return bagCreationError.ChildColourNotFound;
+            var childCountString = parts.next() orelse return error.ChildCountNotFound;
+            var childAdjective = parts.next() orelse return error.ChildAdjectiveNotFound;
+            var childColour = parts.next() orelse return error.ChildColourNotFound;
 
             var childString = child[2 .. childAdjective.len + childColour.len + 3];
             var childCount = try std.fmt.parseInt(usize, childCountString, 10);
@@ -132,7 +130,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
                 try bags.put(childString, try RC(Bag).new(newBag, allocator));
             }
 
-            var childBag = bags.get(childString) orelse unreachable;
+            var childBag = bags.get(childString) orelse return error.BagMysteriouslyDisappeared;
 
             try entry.inner.val.children.append(Contents{ .count = childCount, .bag = childBag.copy() });
             try childBag.inner.val.parents.append(entry.weak());

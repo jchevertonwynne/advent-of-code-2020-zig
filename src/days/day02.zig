@@ -44,13 +44,13 @@ const entry = struct {
     fn tryFrom(source: []const u8) !entry {
         var tokens = std.mem.tokenize(u8, source, " ");
 
-        var minMax = tokens.next() orelse return errors.FailedToGetToken;
-        var sep = std.mem.indexOf(u8, minMax, "-") orelse return errors.FailedToGetIndex;
+        var minMax = tokens.next() orelse return error.FailedToGetToken;
+        var sep = std.mem.indexOf(u8, minMax, "-") orelse return error.FailedToGetIndex;
         var min = try std.fmt.parseInt(usize, minMax[0..sep], 10);
         var max = try std.fmt.parseInt(usize, minMax[sep + 1 ..], 10);
 
-        var letter = tokens.next() orelse return errors.FailedToGetToken;
-        var password = tokens.next() orelse return errors.FailedToGetToken;
+        var letter = tokens.next() orelse return error.FailedToGetToken;
+        var password = tokens.next() orelse return error.FailedToGetToken;
 
         return entry{ .password = password, .rule = rule{ .min = min, .max = max, .char = letter[0] } };
     }
@@ -88,4 +88,3 @@ const entry = struct {
 
 const rule = struct { char: u8, min: usize, max: usize };
 
-const errors = error{ FailedToGetToken, FailedToGetIndex };
