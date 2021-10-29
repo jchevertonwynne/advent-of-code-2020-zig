@@ -7,10 +7,10 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var machine = try Machine.fromString(contents, allocator);
     defer machine.instructions.deinit();
 
-    var seen = std.ArrayList(bool).init(allocator);
+    var seen = ArrayList(bool).init(allocator);
     try seen.appendNTimes(false, machine.instructions.items.len);
 
-    var p1 = try part1(&machine, seen.items);
+    var p1 = part1(&machine, seen.items);
     var p2 = try part2(&machine, seen.items);
 
     var end = std.time.nanoTimestamp();
@@ -26,47 +26,51 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     try out.print("\t\t{d}ns\n", .{end - start});
 }
 
-fn part1(machine: *Machine, seen: []bool) !isize {
-    _ = try machine.run_to_loop(seen);
+fn part1(machine: *Machine, seen: []bool) isize {
+    _ = machine.run_to_loop(seen);
     defer machine.reset();
     return machine.accumulator;
 }
 
-fn part2(machine: *Machine, seen: []bool) !?isize {
+fn part2(machine: *Machine, seen: []bool) !isize {
     var i: usize = 0;
     while (i < machine.instructions.items.len) : (i += 1) {
-        if (transform(&machine.instructions.items[i])) {
-            if ((try machine.run_to_loop(seen)) == .ReachedEnd) {
+        if (machine.instructions.items[i].transform()) {
+            if ((machine.run_to_loop(seen)) == .ReachedEnd) {
                 return machine.accumulator;
             }
 
-            _ = transform(&machine.instructions.items[i]);
+            _ = machine.instructions.items[i].transform();
             machine.reset();
         }
     }
 
-    return null;
+    return error.NoSwappableInstructionSolutionFound;
 }
 
 const I = enum { Acc, Jmp, Nop };
 
 const MachineState = enum { Running, Stopped };
 
-const Instruction = union(I) { Acc: isize, Jmp: isize, Nop: isize };
-
-fn transform(instruction: *Instruction) bool {
-    switch (instruction.*) {
-        .Acc => return false,
-        .Jmp => |val| {
-            instruction.* = Instruction{ .Nop = val };
-            return true;
-        },
-        .Nop => |val| {
-            instruction.* = Instruction{ .Jmp = val };
-            return true;
-        },
+const Instruction = union(I) { 
+    Acc: isize, 
+    Jmp: isize, 
+    Nop: isize,
+    
+    fn transform(instruction: *Instruction) bool {
+        switch (instruction.*) {
+            .Acc => return false,
+            .Jmp => |val| {
+                instruction.* = Instruction{ .Nop = val };
+                return true;
+            },
+            .Nop => |val| {
+                instruction.* = Instruction{ .Jmp = val };
+                return true;
+            },
+        }
     }
-}
+};
 
 const TerminationCondition = enum { Looped, ReachedEnd };
 
@@ -109,7 +113,7 @@ const Machine = struct {
         return Machine.new(instructions);
     }
 
-    fn new(instructions: std.ArrayList(Instruction)) Machine {
+    fn new(instructions: ArrayList(Instruction)) Machine {
         return .{ .index = 0, .instructions = instructions, .accumulator = 0 };
     }
 
@@ -133,7 +137,7 @@ const Machine = struct {
         }
     }
 
-    fn run_to_loop(self: *Machine, seen: []bool) !TerminationCondition {
+    fn run_to_loop(self: *Machine, seen: []bool) TerminationCondition {
         var i: usize = 0;
         while (i < seen.len) : (i += 1) {
             seen[i] = false;

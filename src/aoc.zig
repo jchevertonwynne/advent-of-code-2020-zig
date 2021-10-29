@@ -3,7 +3,8 @@ const day02 = @import("./days/day02.zig");
 const day07 = @import("./days/day07.zig");
 const day08 = @import("./days/day08.zig");
 const std = @import("std");
-const Contents = @import("util.zig").Contents;
+const utils = @import("util.zig");
+const Contents = utils.Contents;
 
 pub fn main() !void {
     var alloc = std.heap.ArenaAllocator.init(std.heap.page_allocator);
@@ -33,7 +34,7 @@ pub fn main() !void {
 
     const stdout = std.io.getStdOut();
     defer stdout.close();
-    try stdout.writer().writeAll(out.items);
+    _ = try stdout.write(out.items);
 }
 
 

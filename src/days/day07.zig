@@ -1,11 +1,12 @@
 const std = @import("std");
 const util = @import("../util.zig");
+const ArrayList = std.ArrayList;
 const RC = util.RC;
 
 const Bag = struct {
     colour: []const u8,
-    parents: std.ArrayList(*Bag),
-    children: std.ArrayList(Contents),
+    parents: ArrayList(*Bag),
+    children: ArrayList(Contents),
 
     fn total_contains(b: Bag) usize {
         var res: usize = 0;
@@ -64,8 +65,9 @@ fn part1(bags: std.StringHashMap(RC(Bag)), allocator: *std.mem.Allocator) !usize
 
     var count: usize = 0;
 
-    var options = std.ArrayList(*Bag).init(allocator);
+    var options = ArrayList(*Bag).init(allocator);
     defer options.deinit();
+    try options.ensureTotalCapacity(340);
     var startBag = bags.getPtr(start) orelse return error.FailedToFindBag;
     try options.appendSlice(startBag.inner.val.parents.items);
 
@@ -99,7 +101,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
         var endOfColour = std.mem.indexOf(u8, line, " bags contain ") orelse return error.ColourNotFound;
         var colour = line[0..endOfColour];
         if (!bags.contains(colour)) {
-            var newBag = Bag{ .colour = colour, .parents = std.ArrayList(*Bag).init(allocator), .children = std.ArrayList(Contents).init(allocator) };
+            var newBag = Bag{ .colour = colour, .parents = ArrayList(*Bag).init(allocator), .children = ArrayList(Contents).init(allocator) };
 
             try bags.put(colour, try RC(Bag).new(newBag, allocator));
         }
@@ -126,7 +128,7 @@ fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC
             var childCount = try std.fmt.parseInt(usize, childCountString, 10);
 
             if (!bags.contains(childString)) {
-                var newBag = Bag{ .colour = childString, .parents = std.ArrayList(*Bag).init(allocator), .children = std.ArrayList(Contents).init(allocator) };
+                var newBag = Bag{ .colour = childString, .parents = ArrayList(*Bag).init(allocator), .children = ArrayList(Contents).init(allocator) };
                 try bags.put(childString, try RC(Bag).new(newBag, allocator));
             }
 

@@ -1,4 +1,5 @@
 const std = @import("std");
+const ArrayList = std.ArrayList;
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
@@ -6,8 +7,8 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var numbers = try loadNumbers(contents, allocator);
     defer numbers.deinit();
 
-    var p1 = part1(numbers.items);
-    var p2 = part2(numbers.items);
+    var p1 = try part1(numbers.items);
+    var p2 = try part2(numbers.items);
 
     var end = std.time.nanoTimestamp();
 
@@ -22,8 +23,8 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     try out.print("\t\t{d}ns\n", .{end - start});
 }
 
-fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !std.ArrayList(usize) {
-    var numbers = std.ArrayList(usize).init(allocator);
+fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !ArrayList(usize) {
+    var numbers = ArrayList(usize).init(allocator);
     errdefer numbers.deinit();
 
     var lines = std.mem.tokenize(u8, contents, "\n");
@@ -34,7 +35,7 @@ fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !std.ArrayList(usi
     return numbers;
 }
 
-fn part1(numbers: []usize) usize {
+fn part1(numbers: []usize) !usize {
     var seen: u2020 = 0;
 
     for (numbers) |number| {
@@ -50,10 +51,10 @@ fn part1(numbers: []usize) usize {
         }
     }
 
-    unreachable;
+    return error.AnswerNotFound;
 }
 
-fn part2(numbers: []usize) usize {
+fn part2(numbers: []usize) !usize {
     var pairsSeen: [2020]u22 = [_]u22{0} ** 2020;
 
     for (numbers) |number1, ind| {
@@ -73,5 +74,5 @@ fn part2(numbers: []usize) usize {
         }
     }
 
-    unreachable;
+    return error.AnswerNotFound;
 }
