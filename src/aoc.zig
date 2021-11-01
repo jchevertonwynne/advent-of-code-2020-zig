@@ -7,9 +7,9 @@ const utils = @import("util.zig");
 const Contents = utils.Contents;
 
 pub fn main() !void {
-    var alloc = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer alloc.deinit();
-    var allocator = &alloc.allocator;
+    var arenaAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arenaAllocator.deinit();
+    var allocator = &arenaAllocator.allocator;
 
     var contents = try Contents.load(allocator);
     defer contents.discard();
@@ -21,7 +21,7 @@ pub fn main() !void {
     var start = std.time.nanoTimestamp();
 
     try day01.run(contents.day01, &writer, allocator);
-    try day02.run(contents.day02, &writer);
+    try day02.run(contents.day02, &writer, allocator);
     try day07.run(contents.day07, &writer, allocator);
     try day08.run(contents.day08, &writer, allocator);
 
@@ -36,5 +36,3 @@ pub fn main() !void {
     defer stdout.close();
     _ = try stdout.write(out.items);
 }
-
-

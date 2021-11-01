@@ -1,9 +1,10 @@
 const std = @import("std");
+const mecha = @import("mecha");
 
-pub fn run(contents: []u8, out: anytype) !void {
+pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
-    var answers = try solve(contents);
+    var answers = try solve(contents, allocator);
     var p1 = answers.part1;
     var p2 = answers.part2;
 
@@ -22,11 +23,11 @@ pub fn run(contents: []u8, out: anytype) !void {
 
 const Answers = struct { part1: usize, part2: usize };
 
-fn solve(contents: []u8) !Answers {
+fn solve(contents: []u8, allocator: *std.mem.Allocator) !Answers {
     var results = Answers{ .part1 = 0, .part2 = 0 };
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
-        var e = try entry.tryFrom(line);
+        var e = (try entry(allocator, line)).value;
         if (e.valid1()) {
             results.part1 += 1;
         }
@@ -37,25 +38,11 @@ fn solve(contents: []u8) !Answers {
     return results;
 }
 
-const entry = struct {
+const Entry = struct {
+    rule: Rule,
     password: []const u8,
-    rule: rule,
 
-    fn tryFrom(source: []const u8) !entry {
-        var tokens = std.mem.tokenize(u8, source, " ");
-
-        var minMax = tokens.next() orelse return error.FailedToGetToken;
-        var sep = std.mem.indexOf(u8, minMax, "-") orelse return error.FailedToGetIndex;
-        var min = try std.fmt.parseInt(usize, minMax[0..sep], 10);
-        var max = try std.fmt.parseInt(usize, minMax[sep + 1 ..], 10);
-
-        var letter = tokens.next() orelse return error.FailedToGetToken;
-        var password = tokens.next() orelse return error.FailedToGetToken;
-
-        return entry{ .password = password, .rule = rule{ .min = min, .max = max, .char = letter[0] } };
-    }
-
-    fn valid1(e: entry) bool {
+    fn valid1(e: Entry) bool {
         var count: usize = 0;
         for (e.password) |c| {
             if (c == e.rule.char) {
@@ -66,7 +53,7 @@ const entry = struct {
         return count >= e.rule.min and count <= e.rule.max;
     }
 
-    fn valid2(e: entry) bool {
+    fn valid2(e: Entry) bool {
         var firstPass = false;
         var secondPass = false;
 
@@ -86,5 +73,8 @@ const entry = struct {
     }
 };
 
-const rule = struct { char: u8, min: usize, max: usize };
+const Rule = struct { min: usize, max: usize, char: u8 };
 
+const rule = mecha.map(Rule, mecha.toStruct(Rule), mecha.combine(.{ mecha.int(usize, .{}), mecha.ascii.char('-'), mecha.int(usize, .{}), mecha.ascii.char(' '), mecha.ascii.alpha }));
+
+const entry = mecha.map(Entry, mecha.toStruct(Entry), mecha.combine(.{ rule, mecha.string(": "), mecha.rest }));

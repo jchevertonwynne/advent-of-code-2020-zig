@@ -12,6 +12,7 @@ pub fn build(b: *Builder) void {
     const mode = b.standardReleaseOptions();
 
     const exe = b.addExecutable("aoc", "src/aoc.zig");
+    exe.addPackagePath("mecha", "vendor/mecha/mecha.zig");
     exe.setTarget(target);
     exe.setBuildMode(mode);
     exe.linkLibC();

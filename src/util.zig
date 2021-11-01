@@ -51,7 +51,7 @@ pub const Contents = struct {
         errdefer allocator.free(day07String);
         var day08String = try dir.readFileAlloc(allocator, "files/08.txt", std.math.maxInt(usize));
         errdefer allocator.free(day08String);
-        
+
         return Contents{
             .allocator = allocator,
             .day01 = day01String,

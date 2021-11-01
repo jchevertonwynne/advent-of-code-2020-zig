@@ -52,11 +52,11 @@ const I = enum { Acc, Jmp, Nop };
 
 const MachineState = enum { Running, Stopped };
 
-const Instruction = union(I) { 
-    Acc: isize, 
-    Jmp: isize, 
+const Instruction = union(I) {
+    Acc: isize,
+    Jmp: isize,
     Nop: isize,
-    
+
     fn transform(instruction: *Instruction) bool {
         switch (instruction.*) {
             .Acc => return false,
@@ -102,7 +102,7 @@ const Machine = struct {
             } else if (std.mem.eql(u8, ins, "nop")) {
                 instruction = Instruction{ .Nop = num };
             }
-            
+
             if (instruction) |parsedInstruction| {
                 try instructions.append(parsedInstruction);
             } else {
