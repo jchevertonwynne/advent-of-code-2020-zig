@@ -1,5 +1,45 @@
 const std = @import("std");
 
+pub fn HashSet(comptime T: type) type {
+    const mapType = if (T == []const u8) std.StringHashMap(void) else std.AutoHashMap(T, void);
+
+    return struct {
+        const Self = @This();
+
+        map: mapType,
+
+        pub fn init(allocator: *std.mem.Allocator) Self {
+            return .{ .map = mapType.init(allocator) };
+        }
+
+        pub fn count(self: Self) u32 {
+            return self.map.count();
+        }
+
+        pub fn insertCheck(self: *Self, val: T) !bool {
+            var contained = self.contains(val);
+            try self.insert(val);
+            return contained;
+        }
+
+        pub fn insert(self: *Self, val: T) !void {
+            return self.map.put(val, {});
+        }
+
+        pub fn contains(self: Self, val: T) bool {
+            return self.map.contains(val);
+        }
+
+        pub fn clear(self: *Self) void {
+            self.map.clearRetainingCapacity();
+        }
+
+        pub fn deinit(self: *Self) void {
+            self.map.deinit();
+        }
+    };
+}
+
 pub fn RC(comptime T: type) type {
     const internal = struct { val: T, count: usize };
 

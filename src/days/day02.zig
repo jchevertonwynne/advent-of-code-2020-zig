@@ -14,8 +14,6 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     try util.writeResponse(out, 2, p1, p2, end - start);
 }
 
-const Answers = struct { part1: usize, part2: usize };
-
 fn solve(contents: []u8, allocator: *std.mem.Allocator, part1: *usize, part2: *usize) !void {
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
