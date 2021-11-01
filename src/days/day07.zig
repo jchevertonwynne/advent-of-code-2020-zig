@@ -25,8 +25,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
     var bags = try createBags(contents, allocator);
-    defer bags.deinit();
-    defer deinitBagsContents(bags);
+    defer deinitBagsContents(&bags);
 
     var p1 = try part1(bags, allocator);
     var p2 = try part2(bags);
@@ -36,7 +35,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     try util.writeResponse(out, 7, p1, p2, end - start);
 }
 
-fn deinitBagsContents(bags: std.StringHashMap(RC(Bag))) void {
+fn deinitBagsContents(bags: *std.StringHashMap(RC(Bag))) void {
     var it = bags.valueIterator();
     while (it.next()) |bag| {
         for (bag.inner.val.children.items) |child| {
@@ -46,6 +45,7 @@ fn deinitBagsContents(bags: std.StringHashMap(RC(Bag))) void {
         bag.inner.val.parents.deinit();
         bag.destroy();
     }
+    bags.deinit();
 }
 
 fn part1(bags: std.StringHashMap(RC(Bag)), allocator: *std.mem.Allocator) !usize {
@@ -83,8 +83,7 @@ fn part2(bags: std.StringHashMap(RC(Bag))) !usize {
 
 fn createBags(source: []u8, allocator: *std.mem.Allocator) !std.StringHashMap(RC(Bag)) {
     var bags = std.StringHashMap(RC(Bag)).init(allocator);
-    errdefer bags.deinit();
-    errdefer deinitBagsContents(bags);
+    errdefer deinitBagsContents(&bags);
 
     var lines = std.mem.tokenize(u8, source, "\n");
     while (lines.next()) |line| {

@@ -5,9 +5,9 @@ const mecha = @import("mecha");
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
-    var answers = try solve(contents, allocator);
-    var p1 = answers.part1;
-    var p2 = answers.part2;
+    var p1: usize = 0;
+    var p2: usize = 0;
+    try solve(contents, allocator, &p1, &p2);
 
     var end = std.time.nanoTimestamp();
 
@@ -16,19 +16,17 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 
 const Answers = struct { part1: usize, part2: usize };
 
-fn solve(contents: []u8, allocator: *std.mem.Allocator) !Answers {
-    var results = Answers{ .part1 = 0, .part2 = 0 };
+fn solve(contents: []u8, allocator: *std.mem.Allocator, part1: *usize, part2: *usize) !void {
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
         var e = (try entry(allocator, line)).value;
         if (e.valid1()) {
-            results.part1 += 1;
+            part1.* += 1;
         }
         if (e.valid2()) {
-            results.part2 += 1;
+            part2.* += 1;
         }
     }
-    return results;
 }
 
 const Entry = struct {
