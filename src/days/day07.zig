@@ -32,7 +32,7 @@ const BagTree = struct {
 
     fn fromString(source: []u8, allocator: *std.mem.Allocator) !Self {
         var bags = std.StringHashMap(RC(Bag)).init(allocator);
-        errdefer deinitBagsContents(&bags);
+        errdefer bags.deinit();
 
         var lines = std.mem.tokenize(u8, source, "\n");
         while (lines.next()) |line| {
@@ -44,7 +44,7 @@ const BagTree = struct {
                 try bags.put(colour, try RC(Bag).new(newBag, allocator));
             }
 
-            var entry = bags.get(colour) orelse return error.BagMysteriouslyDisappeared;
+            var entry = bags.get(colour) orelse return error.BagNotFound;
 
             var rest = line[endOfColour + 14 ..];
 
@@ -70,7 +70,7 @@ const BagTree = struct {
                     try bags.put(childString, try RC(Bag).new(newBag, allocator));
                 }
 
-                var childBag = bags.get(childString) orelse return error.BagMysteriouslyDisappeared;
+                var childBag = bags.get(childString) orelse return error.BagNotFound;
 
                 try entry.inner.val.children.append(Contents{ .count = childCount, .bag = childBag.copy() });
                 try childBag.inner.val.parents.append(entry.weak());
@@ -120,8 +120,7 @@ const Bag = struct {
         var result: usize = 0;
 
         for (self.parents.items) |parent| {
-            if (!seen.contains(parent.colour)) {
-                try seen.insert(parent.colour);
+            if (try seen.insertCheck(parent.colour)) {
                 var parentResult = try parent.parentsHelper(bags, seen);
                 result += 1 + parentResult;
             }

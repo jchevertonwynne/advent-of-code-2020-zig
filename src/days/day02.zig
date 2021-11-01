@@ -17,7 +17,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 fn solve(contents: []u8, allocator: *std.mem.Allocator, part1: *usize, part2: *usize) !void {
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
-        var e = (try entry(allocator, line)).value;
+        var e = (try Entry.parse(allocator, line)).value;
         if (e.valid1()) {
             part1.* += 1;
         }
@@ -28,42 +28,48 @@ fn solve(contents: []u8, allocator: *std.mem.Allocator, part1: *usize, part2: *u
 }
 
 const Entry = struct {
+    const Self = @This();
+
     rule: Rule,
     password: []const u8,
 
-    fn valid1(e: Entry) bool {
+    fn valid1(self: Self) bool {
         var count: usize = 0;
-        for (e.password) |c| {
-            if (c == e.rule.char) {
+        for (self.password) |c| {
+            if (c == self.rule.char) {
                 count += 1;
             }
         }
 
-        return count >= e.rule.min and count <= e.rule.max;
+        return count >= self.rule.min and count <= self.rule.max;
     }
 
-    fn valid2(e: Entry) bool {
+    fn valid2(self: Self) bool {
         var firstPass = false;
         var secondPass = false;
 
-        if (e.rule.min < e.password.len + 1) {
-            if (e.password[e.rule.min - 1] == e.rule.char) {
+        if (self.rule.min < self.password.len + 1) {
+            if (self.password[self.rule.min - 1] == self.rule.char) {
                 firstPass = true;
             }
         }
 
-        if (e.rule.max < e.password.len + 1) {
-            if (e.password[e.rule.max - 1] == e.rule.char) {
+        if (self.rule.max < self.password.len + 1) {
+            if (self.password[self.rule.max - 1] == self.rule.char) {
                 secondPass = true;
             }
         }
 
         return firstPass != secondPass;
     }
+
+    const parse = mecha.map(Entry, mecha.toStruct(Entry), mecha.combine(.{ Rule.parse, mecha.string(": "), mecha.rest }));
 };
 
-const Rule = struct { min: usize, max: usize, char: u8 };
+const Rule = struct {
+    min: usize,
+    max: usize,
+    char: u8,
 
-const rule = mecha.map(Rule, mecha.toStruct(Rule), mecha.combine(.{ mecha.int(usize, .{}), mecha.ascii.char('-'), mecha.int(usize, .{}), mecha.ascii.char(' '), mecha.ascii.alpha }));
-
-const entry = mecha.map(Entry, mecha.toStruct(Entry), mecha.combine(.{ rule, mecha.string(": "), mecha.rest }));
+    const parse = mecha.map(Rule, mecha.toStruct(Rule), mecha.combine(.{ mecha.int(usize, .{}), mecha.ascii.char('-'), mecha.int(usize, .{}), mecha.ascii.char(' '), mecha.ascii.alpha }));
+};
