@@ -68,3 +68,13 @@ pub const Contents = struct {
         c.allocator.free(c.day08);
     }
 };
+
+pub fn writeResponse(out: anytype, day: usize, part1: anytype, part2: anytype, time: i128) !void {
+    try out.print("problem {}:\n", .{day});
+    try out.print("\tpart 1:\t{}\n", .{part1});
+    try out.print("\tpart 2:\t{}\n", .{part2});
+    try out.print("duration:\n", .{});
+    try out.print("\t{d}ms\n", .{@divFloor(time, 1_000_000)});
+    try out.print("\t{d}us\n", .{@divFloor(time, 1_000)});
+    try out.print("\t{d}ns\n\n", .{time});
+}

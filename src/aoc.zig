@@ -27,7 +27,7 @@ pub fn main() !void {
 
     var end = std.time.nanoTimestamp();
 
-    try writer.print("overall that took: {d}ns or {d}ms\n", .{ end - start, @divFloor(end - start, 1_000_000) });
+    try writer.print("aoc ran in:\n", .{});
     try writer.print("\t{d}ms\n", .{@divFloor(end - start, 1_000_000)});
     try writer.print("\t{d}us\n", .{@divFloor(end - start, 1_000)});
     try writer.print("\t{d}ns\n", .{end - start});

@@ -1,4 +1,5 @@
 const std = @import("std");
+const util = @import("../util.zig");
 const ArrayList = std.ArrayList;
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
@@ -15,15 +16,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 
     var end = std.time.nanoTimestamp();
 
-    try out.print("problem eight:\n", .{});
-    try out.print("\tpart 1:\n", .{});
-    try out.print("\t\t{d}\n", .{p1});
-    try out.print("\tpart 2:\n", .{});
-    try out.print("\t\t{d}\n", .{p2});
-    try out.print("\tduration:\n", .{});
-    try out.print("\t\t{d}ms\n", .{@divFloor(end - start, 1_000_000)});
-    try out.print("\t\t{d}us\n", .{@divFloor(end - start, 1_000)});
-    try out.print("\t\t{d}ns\n", .{end - start});
+    try util.writeResponse(out, 8, p1, p2, end - start);
 }
 
 fn part1(machine: *Machine, seen: []bool) isize {
