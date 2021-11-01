@@ -46,19 +46,21 @@ const I = enum { Acc, Jmp, Nop };
 const MachineState = enum { Running, Stopped };
 
 const Instruction = union(I) {
+    const Self = @This();
+
     Acc: isize,
     Jmp: isize,
     Nop: isize,
 
-    fn transform(instruction: *Instruction) bool {
-        switch (instruction.*) {
+    fn transform(self: *Self) bool {
+        switch (self.*) {
             .Acc => return false,
             .Jmp => |val| {
-                instruction.* = Instruction{ .Nop = val };
+                self.* = Self{ .Nop = val };
                 return true;
             },
             .Nop => |val| {
-                instruction.* = Instruction{ .Jmp = val };
+                self.* = Self{ .Jmp = val };
                 return true;
             },
         }
@@ -68,11 +70,13 @@ const Instruction = union(I) {
 const TerminationCondition = enum { Looped, ReachedEnd };
 
 const Machine = struct {
+    const Self = @This();
+
     index: isize,
     instructions: ArrayList(Instruction),
     accumulator: isize,
 
-    fn fromString(source: []u8, allocator: *std.mem.Allocator) !Machine {
+    fn fromString(source: []u8, allocator: *std.mem.Allocator) !Self {
         var instructions = ArrayList(Instruction).init(allocator);
         errdefer instructions.deinit();
 
@@ -106,16 +110,16 @@ const Machine = struct {
         return Machine.new(instructions);
     }
 
-    fn new(instructions: ArrayList(Instruction)) Machine {
+    fn new(instructions: ArrayList(Instruction)) Self {
         return .{ .index = 0, .instructions = instructions, .accumulator = 0 };
     }
 
-    fn reset(self: *Machine) void {
+    fn reset(self: *Self) void {
         self.accumulator = 0;
         self.index = 0;
     }
 
-    fn step(self: *Machine) void {
+    fn step(self: *Self) void {
         switch (self.instructions.items[@bitCast(usize, self.index)]) {
             .Acc => |val| {
                 self.accumulator += val;
@@ -130,7 +134,7 @@ const Machine = struct {
         }
     }
 
-    fn run_to_loop(self: *Machine, seen: []bool) TerminationCondition {
+    fn run_to_loop(self: *Self, seen: []bool) TerminationCondition {
         var i: usize = 0;
         while (i < seen.len) : (i += 1) {
             seen[i] = false;
