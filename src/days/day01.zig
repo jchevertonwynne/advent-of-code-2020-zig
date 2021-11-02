@@ -55,8 +55,7 @@ fn part2(numbers: []usize) !usize {
             var sum = number1 + number2;
             var mult = number1 * number2;
             if (sum < 2020) {
-                var seen = @truncate(u22, mult);
-                pairsSeen[sum] = seen;
+                pairsSeen[sum] = @truncate(u22, mult);
             }
         }
     }

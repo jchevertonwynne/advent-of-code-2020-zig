@@ -1,7 +1,9 @@
 const std = @import("std");
 const util = @import("../util.zig");
 const ArrayList = std.ArrayList;
+const StringHashMap = std.StringHashMap;
 const RC = util.RC;
+const HashSet = util.HashSet;
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
@@ -28,10 +30,10 @@ fn part2(bags: BagTree) !usize {
 const BagTree = struct {
     const Self = @This();
 
-    bags: std.StringHashMap(RC(Bag)),
+    bags: StringHashMap(RC(Bag)),
 
     fn fromString(source: []u8, allocator: *std.mem.Allocator) !Self {
-        var bags = std.StringHashMap(RC(Bag)).init(allocator);
+        var bags = StringHashMap(RC(Bag)).init(allocator);
         errdefer bags.deinit();
 
         var lines = std.mem.tokenize(u8, source, "\n");
@@ -72,8 +74,8 @@ const BagTree = struct {
 
                 var childBag = bags.get(childString) orelse return error.BagNotFound;
 
-                try entry.inner.val.children.append(Contents{ .count = childCount, .bag = childBag.copy() });
-                try childBag.inner.val.parents.append(entry.weak());
+                try entry.ptr().children.append(Contents{ .count = childCount, .bag = childBag.copy() });
+                try childBag.ptr().parents.append(entry.ptr());
             }
         }
 
@@ -83,29 +85,29 @@ const BagTree = struct {
     fn deinit(self: *Self) void {
         var it = self.bags.valueIterator();
         while (it.next()) |bag| {
-            for (bag.inner.val.children.items) |child| {
+            for (bag.ptr().children.items) |child| {
                 child.bag.destroy();
             }
-            bag.inner.val.children.deinit();
-            bag.inner.val.parents.deinit();
+            bag.ptr().children.deinit();
+            bag.ptr().parents.deinit();
             bag.destroy();
         }
         self.bags.deinit();
     }
 
     fn parents(self: Self, start: []const u8, allocator: *std.mem.Allocator) !usize {
-        var seen = util.HashSet([]const u8).init(allocator);
+        var seen = HashSet([]const u8).init(allocator);
         defer seen.deinit();
 
         var sourceBag = self.bags.getPtr(start) orelse return error.BagNotFound;
 
-        return try sourceBag.weak().parentsHelper(self.bags, &seen);
+        return try sourceBag.ptr().parentsHelper(self.bags, &seen);
     }
 
     fn contains(self: Self, source: []const u8) !usize {
         var startBag = self.bags.getPtr(source) orelse return error.FailedToFindBag;
 
-        return startBag.inner.val.totalContains();
+        return startBag.ptr().totalContains();
     }
 };
 
@@ -116,7 +118,7 @@ const Bag = struct {
     parents: ArrayList(*Bag),
     children: ArrayList(Contents),
 
-    fn parentsHelper(self: *Self, bags: std.StringHashMap(RC(Bag)), seen: *util.HashSet([]const u8)) anyerror!usize {
+    fn parentsHelper(self: *Self, bags: StringHashMap(RC(Bag)), seen: *HashSet([]const u8)) anyerror!usize {
         var result: usize = 0;
 
         for (self.parents.items) |parent| {
@@ -133,7 +135,7 @@ const Bag = struct {
         var res: usize = 0;
 
         for (b.children.items) |child| {
-            res += child.count * (1 + child.bag.inner.val.totalContains());
+            res += child.count * (1 + child.bag.ptr().totalContains());
         }
 
         return res;

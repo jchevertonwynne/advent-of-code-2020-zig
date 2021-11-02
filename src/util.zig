@@ -18,8 +18,11 @@ pub fn HashSet(comptime T: type) type {
 
         pub fn insertCheck(self: *Self, val: T) !bool {
             var contained = self.contains(val);
+            if (contained) {
+                return false;
+            }
             try self.insert(val);
-            return contained;
+            return true;
         }
 
         pub fn insert(self: *Self, val: T) !void {
@@ -56,7 +59,7 @@ pub fn RC(comptime T: type) type {
             return Self{ .inner = inner, .alloc = allocator };
         }
 
-        pub fn weak(self: Self) *T {
+        pub fn ptr(self: Self) *T {
             return &self.inner.val;
         }
 
