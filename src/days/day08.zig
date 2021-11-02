@@ -1,5 +1,7 @@
 const std = @import("std");
+
 const util = @import("../util.zig");
+
 const ArrayList = std.ArrayList;
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {

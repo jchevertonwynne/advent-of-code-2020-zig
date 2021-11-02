@@ -1,6 +1,8 @@
 const std = @import("std");
-const util = @import("../util.zig");
+
 const mecha = @import("mecha");
+
+const util = @import("../util.zig");
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
