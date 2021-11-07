@@ -19,6 +19,14 @@ pub fn ArrayVec(comptime T: type, comptime size: usize) type {
             self.len += 1;
         }
 
+        pub fn pop(self: *Self) ?T {
+            if (self.len == 0) {
+                return null;
+            }
+            self.len -= 1;
+            return self.inner[self.len];
+        }
+
         pub fn items(self: Self) []const T {
             return self.inner[0..self.len];
         } 
