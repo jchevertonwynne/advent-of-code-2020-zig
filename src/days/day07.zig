@@ -68,8 +68,9 @@ const BagTree = struct {
                 var childCount = try std.fmt.parseInt(usize, childCountString, 10);
 
                 if (!bags.contains(childString)) {
-                    var newBag = Bag{ .colour = childString, .parents = ArrayList(*Bag).init(allocator), .children = ArrayList(Contents).init(allocator) };
-                    try bags.put(childString, try RC(Bag).new(newBag, allocator));
+                    var newBag = try RC(Bag).new(Bag{ .colour = childString, .parents = ArrayList(*Bag).init(allocator), .children = ArrayList(Contents).init(allocator) }, allocator);
+                    errdefer newBag.destroy();
+                    try bags.put(childString, newBag);
                 }
 
                 var childBag = bags.get(childString) orelse return error.BagNotFound;
