@@ -12,6 +12,9 @@ pub fn main() !void {
     var arenaAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
     defer arenaAllocator.deinit();
     var allocator = &arenaAllocator.allocator;
+    // var genAllocator = std.heap.GeneralPurposeAllocator(.{}){};
+    // defer std.debug.assert(!genAllocator.deinit());
+    // var allocator = &genAllocator.allocator;
 
     var contents = try Contents.load(allocator);
     defer contents.discard();

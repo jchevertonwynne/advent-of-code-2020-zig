@@ -85,11 +85,7 @@ const BagTree = struct {
     fn deinit(self: *Self) void {
         var it = self.bags.valueIterator();
         while (it.next()) |bag| {
-            for (bag.ptr().children.items) |child| {
-                child.bag.destroy();
-            }
-            bag.ptr().children.deinit();
-            bag.ptr().parents.deinit();
+            bag.ptr().deinit();
             bag.destroy();
         }
         self.bags.deinit();
@@ -139,6 +135,14 @@ const Bag = struct {
         }
 
         return res;
+    }
+
+    fn deinit(self: *Self) void {
+        for (self.children.items) |child| {
+            child.bag.destroy();
+        }
+        self.parents.deinit();
+        self.children.deinit();
     }
 };
 

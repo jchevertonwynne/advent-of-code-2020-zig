@@ -11,6 +11,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     defer machine.instructions.deinit();
 
     var seen = ArrayList(bool).init(allocator);
+    defer seen.deinit();
     try seen.appendNTimes(false, machine.instructions.items.len);
 
     var p1 = part1(&machine, seen.items);
