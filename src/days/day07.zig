@@ -41,12 +41,12 @@ const BagTree = struct {
             var endOfColour = std.mem.indexOf(u8, line, " bags contain ") orelse return error.ColourNotFound;
             var colour = line[0..endOfColour];
             if (!bags.contains(colour)) {
-                var newBag = Bag{ .colour = colour, .parents = ArrayList(*Bag).init(allocator), .children = ArrayList(Contents).init(allocator) };
-
-                try bags.put(colour, try RC(Bag).new(newBag, allocator));
+                var newBag = try RC(Bag).new(Bag{ .colour = colour, .parents = ArrayList(*Bag).init(allocator), .children = ArrayList(Contents).init(allocator) }, allocator);
+                errdefer newBag.destroy();                
+                try bags.put(colour, newBag);
             }
 
-            var entry = bags.get(colour) orelse return error.BagNotFound;
+            var entry = (bags.get(colour) orelse return error.BagNotFound).ptr();
 
             var rest = line[endOfColour + 14 ..];
 
@@ -75,8 +75,8 @@ const BagTree = struct {
 
                 var childBag = bags.get(childString) orelse return error.BagNotFound;
 
-                try entry.ptr().children.append(Contents{ .count = childCount, .bag = childBag.copy() });
-                try childBag.ptr().parents.append(entry.ptr());
+                try entry.children.append(Contents{ .count = childCount, .bag = childBag.copy() });
+                try childBag.ptr().parents.append(entry);
             }
         }
 
