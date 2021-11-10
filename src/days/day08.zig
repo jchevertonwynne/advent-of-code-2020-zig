@@ -44,11 +44,9 @@ fn part2(machine: *Machine, seen: []bool) !isize {
     return error.NoSwappableInstructionSolutionFound;
 }
 
-const I = enum { Acc, Jmp, Nop };
-
 const MachineState = enum { Running, Stopped };
 
-const Instruction = union(I) {
+const Instruction = union(enum) {
     const Self = @This();
 
     Acc: isize,

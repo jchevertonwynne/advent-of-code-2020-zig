@@ -14,7 +14,7 @@ pub fn ArrayVec(comptime T: type, comptime size: usize) type {
         pub fn insert(self: *Self, val: T) void {
             if (self.len == size) {
                 @panic("too big sad face");
-            } 
+            }
             self.inner[self.len] = val;
             self.len += 1;
         }
@@ -29,7 +29,7 @@ pub fn ArrayVec(comptime T: type, comptime size: usize) type {
 
         pub fn items(self: Self) []const T {
             return self.inner[0..self.len];
-        } 
+        }
     };
 }
 
