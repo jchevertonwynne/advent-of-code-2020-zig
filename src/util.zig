@@ -76,6 +76,38 @@ pub fn HashSet(comptime T: type) type {
     };
 }
 
+pub fn MassAlloc(comptime T: type, comptime batch: usize) type {
+    return struct {
+        const Self = @This();
+
+        allocator: *std.mem.Allocator,
+        contents: *[batch]T,
+        ind: usize,
+
+        pub fn init(allocator: *std.mem.Allocator) !Self {
+            var innerContents = try allocator.create([batch]T);
+            return Self{
+                .allocator = allocator,
+                .contents = innerContents,
+                .ind = 0
+            };
+        }
+
+        pub fn next(self: *Self) !*T {
+            if (self.ind >= batch) {
+                @panic("max size exceeded");
+            }
+            var res = &self.contents.*[self.ind];
+            self.ind += 1;
+            return res;
+        }
+
+        pub fn deinit(self: *Self) void {
+            self.allocator.free(self.contents);
+        }
+    };
+}
+
 pub fn RC(comptime T: type) type {
     const internal = struct { val: T, count: usize };
 
