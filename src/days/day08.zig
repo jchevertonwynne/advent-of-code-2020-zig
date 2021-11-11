@@ -15,7 +15,15 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     try seen.appendNTimes(false, machine.instructions.items.len);
 
     var p1 = part1(&machine, seen.items);
-    var p2 = try part2(&machine, seen.items);
+
+    var seen2 = ArrayList(bool).init(allocator);
+    defer seen2.deinit();
+    try seen2.ensureTotalCapacity(machine.instructions.items.len);
+    for (seen.items) |s| {
+        try seen2.append(s);
+    }
+
+    var p2 = try part2(&machine, seen.items, seen2.items);
 
     var end = std.time.nanoTimestamp();
 
@@ -28,10 +36,10 @@ fn part1(machine: *Machine, seen: []bool) isize {
     return machine.accumulator;
 }
 
-fn part2(machine: *Machine, seen: []bool) !isize {
+fn part2(machine: *Machine, seen: []bool, record: []bool) !isize {
     var i: usize = 0;
     while (i < machine.instructions.items.len) : (i += 1) {
-        if (machine.instructions.items[i].transform()) {
+        if (record[i] and machine.instructions.items[i].transform()) {
             if ((machine.run_to_loop(seen)) == .ReachedEnd) {
                 return machine.accumulator;
             }
