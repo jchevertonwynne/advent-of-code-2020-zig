@@ -9,9 +9,9 @@ const utils = @import("util.zig");
 const Contents = utils.Contents;
 
 pub fn main() !void {
-    var arenaAllocator = std.heap.ArenaAllocator.init(std.heap.page_allocator);
-    defer arenaAllocator.deinit();
-    var allocator = &arenaAllocator.allocator;
+    var buf: [1 << 19]u8 = undefined;
+    var bufAllocator = std.heap.FixedBufferAllocator.init(&buf);
+    var allocator = &bufAllocator.allocator;
     // var genAllocator = std.heap.GeneralPurposeAllocator(.{}){};
     // defer std.debug.assert(!genAllocator.deinit());
     // var allocator = &genAllocator.allocator;

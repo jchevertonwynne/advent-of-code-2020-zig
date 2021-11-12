@@ -31,18 +31,14 @@ fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !ArrayList(usize) 
 }
 
 fn part1(numbers: []usize) !usize {
-    var seen: u2020 = 0;
+    var seen = [_]bool{false} ** 2020;
 
     for (numbers) |number| {
         if (number <= 2020) {
-            var paired: u2020 = 1;
-            paired <<= @truncate(u11, 2020 - number);
-            if ((seen & paired) != 0) {
+            if (seen[2020 - number]) {
                 return number * (2020 - number);
             }
-            var num: u2020 = 1;
-            num <<= @truncate(u11, number);
-            seen |= num;
+            seen[number] = true;
         }
     }
 
@@ -50,7 +46,7 @@ fn part1(numbers: []usize) !usize {
 }
 
 fn part2(numbers: []usize) !usize {
-    var pairsSeen: [2020]u22 = [_]u22{0} ** 2020;
+    var pairsSeen = [_]u22{0} ** 2020;
 
     for (numbers) |number1, ind| {
         for (numbers[ind + 1 ..]) |number2| {

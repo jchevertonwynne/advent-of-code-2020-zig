@@ -1,5 +1,37 @@
 const std = @import("std");
 
+pub fn BlockAllocator(comptime T: type, comptime size: usize) type {
+    return struct {
+        const Self = @This();
+
+        allocator: *std.mem.Allocator,
+        inner: std.ArrayList(*[size]T),
+        ind: usize,
+
+        pub fn init(allocator: *std.mem.Allocator) Self {
+            return .{ .allocator = allocator, .inner = std.ArrayList(*[size]T).init(allocator), .ind = 0 };
+        }
+
+        pub fn next(self: *Self) !*T {
+            if (self.ind % size == 0) {
+                var nextSlab = try self.allocator.create([size]T);
+                errdefer self.allocator.free(nextSlab);
+                try self.inner.append(nextSlab);
+            }
+            var res = &self.inner.items[self.ind / size].*[self.ind % size];
+            self.ind += 1;
+            return res;
+        }
+
+        pub fn deinit(self: *Self) void {
+            for (self.inner.items) |contents| {
+                self.allocator.free(contents);
+            }
+            self.inner.deinit();
+        }
+    };
+}
+
 pub fn ArrayVec(comptime T: type, comptime size: usize) type {
     return struct {
         const Self = @This();
