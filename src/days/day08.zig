@@ -10,16 +10,16 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var machine = try Machine.fromString(contents, allocator);
     defer machine.instructions.deinit();
 
-    var seen = try allocator.alloc(bool, machine.instructions.items.len * 2);
-    defer allocator.free(seen);
-    var seen1 = seen[0..machine.instructions.items.len];
-    var seen2 = seen[machine.instructions.items.len..];
+    var storage = try allocator.alloc(bool, machine.instructions.items.len * 2);
+    defer allocator.free(storage);
+    var seen = storage[0..machine.instructions.items.len];
+    
+    var p1 = part1(&machine, seen);
 
-    var p1 = part1(&machine, seen1);
+    var criticalInstructions = storage[machine.instructions.items.len..];
+    std.mem.copy(bool, criticalInstructions, seen);
 
-    std.mem.copy(bool, seen2, seen1);
-
-    var p2 = try part2(&machine, seen1, seen2);
+    var p2 = try part2(&machine, seen, criticalInstructions);
 
     var end = std.time.nanoTimestamp();
 
@@ -33,14 +33,13 @@ fn part1(machine: *Machine, seen: []bool) isize {
 }
 
 fn part2(machine: *Machine, seen: []bool, criticalInstructions: []bool) !isize {
-    var i: usize = 0;
-    while (i < machine.instructions.items.len) : (i += 1) {
-        if (criticalInstructions[i] and machine.instructions.items[i].transform()) {
-            if ((machine.run_to_loop(seen)) == .ReachedEnd) {
+    for (machine.instructions.items) |*instruction, i| {
+        if (criticalInstructions[i] and instruction.transform()) {
+            if (machine.run_to_loop(seen) == .ReachedEnd) {
                 return machine.accumulator;
             }
 
-            _ = machine.instructions.items[i].transform();
+            _ = instruction.transform();
             machine.reset();
         }
     }
@@ -96,20 +95,14 @@ const Machine = struct {
                 num = try std.math.negate(num);
             }
 
-            var instruction: ?Instruction = null;
-            if (std.mem.eql(u8, ins, "acc")) {
-                instruction = Instruction{ .Acc = num };
-            } else if (std.mem.eql(u8, ins, "jmp")) {
-                instruction = Instruction{ .Jmp = num };
-            } else if (std.mem.eql(u8, ins, "nop")) {
-                instruction = Instruction{ .Nop = num };
-            }
+            var instruction = switch (ins[0]) {
+                'a' => Instruction{ .Acc = num },
+                'j' => Instruction{ .Jmp = num },
+                'n' => Instruction{ .Nop = num },
+                else => return error.UnparseableInstruction
+            };
 
-            if (instruction) |parsedInstruction| {
-                try instructions.append(parsedInstruction);
-            } else {
-                return error.UnparseableInstruction;
-            }
+            try instructions.append(instruction);
         }
 
         return Machine.new(instructions);
@@ -140,10 +133,8 @@ const Machine = struct {
     }
 
     fn run_to_loop(self: *Self, seen: []bool) TerminationCondition {
-        var i: usize = 0;
-        while (i < seen.len) : (i += 1) {
-            seen[i] = false;
-        }
+        for (seen) |*s|
+            s.* = false;
 
         while (true) {
             self.step();

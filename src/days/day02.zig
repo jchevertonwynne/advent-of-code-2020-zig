@@ -4,22 +4,22 @@ const mecha = @import("mecha");
 
 const util = @import("../util.zig");
 
-pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
+pub fn run(contents: []u8, out: anytype) !void {
     var start = std.time.nanoTimestamp();
 
     var p1: usize = 0;
     var p2: usize = 0;
-    try solve(contents, allocator, &p1, &p2);
+    try solve(contents, &p1, &p2);
 
     var end = std.time.nanoTimestamp();
 
     try util.writeResponse(out, 2, p1, p2, end - start);
 }
 
-fn solve(contents: []u8, allocator: *std.mem.Allocator, part1: *usize, part2: *usize) !void {
+fn solve(contents: []u8, part1: *usize, part2: *usize) !void {
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
-        var e = (try Entry.parse(allocator, line)).value;
+        var e = (try Entry.parse(&util.ZeroAllocator, line)).value;
         if (e.valid1()) {
             part1.* += 1;
         }
@@ -50,13 +50,13 @@ const Entry = struct {
         var firstPass = false;
         var secondPass = false;
 
-        if (self.rule.min < self.password.len + 1) {
+        if (self.rule.min <= self.password.len) {
             if (self.password[self.rule.min - 1] == self.rule.char) {
                 firstPass = true;
             }
         }
 
-        if (self.rule.max < self.password.len + 1) {
+        if (self.rule.max <= self.password.len) {
             if (self.password[self.rule.max - 1] == self.rule.char) {
                 secondPass = true;
             }

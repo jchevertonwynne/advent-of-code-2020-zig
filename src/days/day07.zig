@@ -6,7 +6,6 @@ const ArrayList = std.ArrayList;
 const StringHashMap = std.StringHashMap;
 
 const BlockAllocator = util.BlockAllocator;
-const HashSet = util.HashSet;
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
@@ -14,20 +13,14 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var bags = try BagTree.fromString(contents, allocator);
     defer bags.deinit();
 
-    var p1 = try part1(bags);
-    var p2 = try part2(bags);
+    var shinyGold = bags.bags.get("shiny gold") orelse return error.BagNotFound;
+
+    var p1 = shinyGold.totalParents();
+    var p2 = shinyGold.totalContains();
 
     var end = std.time.nanoTimestamp();
 
     try util.writeResponse(out, 7, p1, p2, end - start);
-}
-
-fn part1(bags: BagTree) !usize {
-    return try bags.parents("shiny gold");
-}
-
-fn part2(bags: BagTree) !usize {
-    return try bags.contains("shiny gold");
 }
 
 const BagTree = struct {
@@ -98,18 +91,6 @@ const BagTree = struct {
         self.bagSource.deinit();
         self.bags.deinit();
     }
-
-    fn parents(self: Self, start: []const u8) !usize {
-        var sourceBag = self.bags.get(start) orelse return error.BagNotFound;
-
-        return sourceBag.parentsHelper(self.bags);
-    }
-
-    fn contains(self: Self, source: []const u8) !usize {
-        var startBag = self.bags.get(source) orelse return error.FailedToFindBag;
-
-        return startBag.totalContains();
-    }
 };
 
 const Bag = struct {
@@ -120,12 +101,12 @@ const Bag = struct {
     children: ArrayList(Contents),
     seen: bool,
 
-    fn parentsHelper(self: *Self, bags: StringHashMap(*Bag)) usize {
+    fn totalParents(self: *Self) usize {
         var result: usize = 0;
 
         for (self.parents.items) |parent| {
             if (!parent.seen) {
-                var parentResult = parent.parentsHelper(bags);
+                var parentResult = parent.totalParents();
                 parent.seen = true;
                 result += 1 + parentResult;
             }
