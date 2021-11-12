@@ -10,20 +10,16 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var machine = try Machine.fromString(contents, allocator);
     defer machine.instructions.deinit();
 
-    var seen = ArrayList(bool).init(allocator);
-    defer seen.deinit();
-    try seen.appendNTimes(false, machine.instructions.items.len);
+    var seen = try allocator.alloc(bool, machine.instructions.items.len * 2);
+    defer allocator.free(seen);
+    var seen1 = seen[0..machine.instructions.items.len];
+    var seen2 = seen[machine.instructions.items.len..];
 
-    var p1 = part1(&machine, seen.items);
+    var p1 = part1(&machine, seen1);
 
-    var seen2 = ArrayList(bool).init(allocator);
-    defer seen2.deinit();
-    try seen2.ensureTotalCapacity(machine.instructions.items.len);
-    for (seen.items) |s| {
-        try seen2.append(s);
-    }
+    std.mem.copy(bool, seen2, seen1);
 
-    var p2 = try part2(&machine, seen.items, seen2.items);
+    var p2 = try part2(&machine, seen1, seen2);
 
     var end = std.time.nanoTimestamp();
 
@@ -36,10 +32,10 @@ fn part1(machine: *Machine, seen: []bool) isize {
     return machine.accumulator;
 }
 
-fn part2(machine: *Machine, seen: []bool, record: []bool) !isize {
+fn part2(machine: *Machine, seen: []bool, criticalInstructions: []bool) !isize {
     var i: usize = 0;
     while (i < machine.instructions.items.len) : (i += 1) {
-        if (record[i] and machine.instructions.items[i].transform()) {
+        if (criticalInstructions[i] and machine.instructions.items[i].transform()) {
             if ((machine.run_to_loop(seen)) == .ReachedEnd) {
                 return machine.accumulator;
             }
