@@ -22,6 +22,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var seen = try allocator.alloc(bool, p1 - smallest + 1);
     defer allocator.free(seen);
 
+    for (seen) |*s| s.* = false;
     for (seats) |seat| {
         seen[seat - smallest] = true;
     }
