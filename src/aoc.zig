@@ -3,6 +3,7 @@ const std = @import("std");
 const day01 = @import("./days/day01.zig");
 const day02 = @import("./days/day02.zig");
 const day03 = @import("./days/day03.zig");
+const day04 = @import("./days/day04.zig");
 const day07 = @import("./days/day07.zig");
 const day08 = @import("./days/day08.zig");
 const utils = @import("util.zig");
@@ -29,6 +30,7 @@ pub fn main() !void {
     try day01.run(contents.day01, &writer, allocator);
     try day02.run(contents.day02, &writer);
     try day03.run(contents.day03, &writer);
+    try day04.run(contents.day04, &writer);
     try day07.run(contents.day07, &writer, allocator);
     try day08.run(contents.day08, &writer, allocator);
 

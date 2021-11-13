@@ -13,7 +13,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var storage = try allocator.alloc(bool, machine.instructions.items.len * 2);
     defer allocator.free(storage);
     var seen = storage[0..machine.instructions.items.len];
-    
+
     var p1 = part1(&machine, seen);
 
     var criticalInstructions = storage[machine.instructions.items.len..];
@@ -99,7 +99,7 @@ const Machine = struct {
                 'a' => Instruction{ .Acc = num },
                 'j' => Instruction{ .Jmp = num },
                 'n' => Instruction{ .Nop = num },
-                else => return error.UnparseableInstruction
+                else => return error.UnparseableInstruction,
             };
 
             try instructions.append(instruction);

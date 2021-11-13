@@ -19,11 +19,11 @@ pub fn run(contents: []u8, out: anytype) !void {
 
 fn solve(contents: []u8, width: usize, p1: *usize, p2: *usize) void {
     const opts = [_][2]usize{
-        [2]usize{1, 1},
-        [2]usize{5, 1},
-        [2]usize{7, 1},
-        [2]usize{1, 2},
-        [2]usize{3, 1},
+        [2]usize{ 1, 1 },
+        [2]usize{ 5, 1 },
+        [2]usize{ 7, 1 },
+        [2]usize{ 1, 2 },
+        [2]usize{ 3, 1 },
     };
 
     var res: usize = 1;
