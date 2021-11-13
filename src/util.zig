@@ -150,6 +150,7 @@ pub const Contents = struct {
     day02: []u8,
     day03: []u8,
     day04: []u8,
+    day05: []u8,
     day07: []u8,
     day08: []u8,
 
@@ -163,6 +164,8 @@ pub const Contents = struct {
         errdefer allocator.free(day03String);
         var day04String = try dir.readFileAlloc(allocator, "files/04.txt", std.math.maxInt(usize));
         errdefer allocator.free(day04String);
+        var day05String = try dir.readFileAlloc(allocator, "files/05.txt", std.math.maxInt(usize));
+        errdefer allocator.free(day05String);
         var day07String = try dir.readFileAlloc(allocator, "files/07.txt", std.math.maxInt(usize));
         errdefer allocator.free(day07String);
         var day08String = try dir.readFileAlloc(allocator, "files/08.txt", std.math.maxInt(usize));
@@ -174,6 +177,7 @@ pub const Contents = struct {
             .day02 = day02String,
             .day03 = day03String,
             .day04 = day04String,
+            .day05 = day05String,
             .day07 = day07String,
             .day08 = day08String,
         };
@@ -184,6 +188,7 @@ pub const Contents = struct {
         self.allocator.free(self.day02);
         self.allocator.free(self.day03);
         self.allocator.free(self.day04);
+        self.allocator.free(self.day05);
         self.allocator.free(self.day07);
         self.allocator.free(self.day08);
     }
