@@ -32,7 +32,7 @@ pub fn main() !void {
     try day02.run(contents.day02, &writer);
     try day03.run(contents.day03, &writer);
     try day04.run(contents.day04, &writer);
-    try day05.run(contents.day05, &writer, allocator);
+    try day05.run(contents.day05, &writer);
     try day07.run(contents.day07, &writer, allocator);
     try day08.run(contents.day08, &writer, allocator);
 
