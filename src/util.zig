@@ -143,37 +143,44 @@ pub fn RC(comptime T: type) type {
 }
 
 pub const Contents = struct {
+    const Self = @This();
+
     allocator: *std.mem.Allocator,
     day01: []u8,
     day02: []u8,
+    day03: []u8,
     day07: []u8,
     day08: []u8,
 
-    pub fn load(allocator: *std.mem.Allocator) !Contents {
+    pub fn load(allocator: *std.mem.Allocator) !Self {
         var dir = std.fs.cwd();
         var day01String = try dir.readFileAlloc(allocator, "files/01.txt", std.math.maxInt(usize));
         errdefer allocator.free(day01String);
         var day02String = try dir.readFileAlloc(allocator, "files/02.txt", std.math.maxInt(usize));
         errdefer allocator.free(day02String);
+        var day03String = try dir.readFileAlloc(allocator, "files/03.txt", std.math.maxInt(usize));
+        errdefer allocator.free(day03String);
         var day07String = try dir.readFileAlloc(allocator, "files/07.txt", std.math.maxInt(usize));
         errdefer allocator.free(day07String);
         var day08String = try dir.readFileAlloc(allocator, "files/08.txt", std.math.maxInt(usize));
         errdefer allocator.free(day08String);
 
-        return Contents{
+        return Self{
             .allocator = allocator,
             .day01 = day01String,
             .day02 = day02String,
+            .day03 = day03String,
             .day07 = day07String,
             .day08 = day08String,
         };
     }
 
-    pub fn discard(c: Contents) void {
-        c.allocator.free(c.day01);
-        c.allocator.free(c.day02);
-        c.allocator.free(c.day07);
-        c.allocator.free(c.day08);
+    pub fn discard(self: Self) void {
+        self.allocator.free(self.day01);
+        self.allocator.free(self.day02);
+        self.allocator.free(self.day03);
+        self.allocator.free(self.day07);
+        self.allocator.free(self.day08);
     }
 };
 
