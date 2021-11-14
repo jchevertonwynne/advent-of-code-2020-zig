@@ -28,7 +28,7 @@ pub fn main() !void {
 
     var start = std.time.nanoTimestamp();
 
-    try day01.run(contents.day01, &writer, allocator);
+    try day01.run(contents.day01, &writer);
     try day02.run(contents.day02, &writer);
     try day03.run(contents.day03, &writer);
     try day04.run(contents.day04, &writer);
