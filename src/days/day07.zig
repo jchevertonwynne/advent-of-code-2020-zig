@@ -5,7 +5,7 @@ const util = @import("../util.zig");
 const ArrayList = std.ArrayList;
 const StringHashMap = std.StringHashMap;
 
-const BlockAllocator = util.BlockAllocator;
+const PoolAllocator = util.PoolAllocator;
 
 pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
@@ -26,11 +26,11 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
 const BagTree = struct {
     const Self = @This();
 
-    bagSource: BlockAllocator(Bag, 128),
+    bagSource: PoolAllocator(Bag, 128),
     bags: StringHashMap(*Bag),
 
     fn fromString(input: []u8, allocator: *std.mem.Allocator) !Self {
-        var source = BlockAllocator(Bag, 128).init(allocator);
+        var source = PoolAllocator(Bag, 128).init(allocator);
         errdefer source.deinit();
 
         var bags = StringHashMap(*Bag).init(allocator);

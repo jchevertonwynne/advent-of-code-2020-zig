@@ -1,6 +1,6 @@
 const std = @import("std");
 
-pub fn BlockAllocator(comptime T: type, comptime size: usize) type {
+pub fn PoolAllocator(comptime T: type, comptime size: usize) type {
     return struct {
         const Self = @This();
 
