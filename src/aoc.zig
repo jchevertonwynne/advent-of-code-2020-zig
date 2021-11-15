@@ -14,7 +14,7 @@ const utils = @import("util.zig");
 const Contents = utils.Contents;
 
 pub fn main() !void {
-    var buf: [1 << 22]u8 = undefined;
+    var buf: [1 << 19]u8 = undefined;
     var bufAllocator = std.heap.FixedBufferAllocator.init(&buf);
     var allocator = &bufAllocator.allocator;
     // var genAllocator = std.heap.GeneralPurposeAllocator(.{}){};
