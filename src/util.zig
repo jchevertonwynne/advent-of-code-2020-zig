@@ -73,8 +73,8 @@ pub fn HashSet(comptime T: type) type {
             self.map.deinit();
         }
 
-        pub fn iterator(self: Self) mapType.ValueIterator {
-            return self.map.valueIterator();
+        pub fn iterator(self: Self) mapType.KeyIterator {
+            return self.map.keyIterator();
         }
     };
 }
