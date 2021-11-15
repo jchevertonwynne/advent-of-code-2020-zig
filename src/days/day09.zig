@@ -11,7 +11,7 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     defer numbers.deinit();
 
     var p1 = try part1(numbers.items);
-    var p2 = part2(numbers.items, p1);
+    var p2 = try part2(numbers.items, p1);
 
     var end = std.time.nanoTimestamp();
 

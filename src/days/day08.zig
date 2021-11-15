@@ -105,7 +105,7 @@ const Machine = struct {
             try instructions.append(instruction);
         }
 
-        return Machine.new(instructions);
+        return Self.new(instructions);
     }
 
     fn new(instructions: ArrayList(Instruction)) Self {
