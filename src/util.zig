@@ -181,7 +181,11 @@ pub fn writeResponse(out: anytype, day: usize, part1: anytype, part2: anytype, t
     try out.print("problem {}:\n", .{day});
     try out.print("\tpart 1:\t{}\n", .{part1});
     try out.print("\tpart 2:\t{}\n", .{part2});
-    try out.print("\ttime:\t{d}us\n\n", .{@divFloor(time, 1_000)});
+    if (@divFloor(time, 1_000) < 1000) {
+        try out.print("\ttime:\t{d}us\n\n", .{@divFloor(time, 1_000)});
+    } else {
+        try out.print("\ttime:\t{d}ms\n\n", .{@divFloor(time, 1_000_000)});
+    }
 }
 
 pub var ZeroAllocator = std.mem.Allocator{ .allocFn = fakeAlloc, .resizeFn = fakeResize };
