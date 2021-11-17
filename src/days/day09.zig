@@ -61,12 +61,8 @@ fn part2(numbers: []usize, goal: usize) !usize {
             sum -= numbers[i];
             i += 1;
         } else {
-            var smallest: usize = std.math.maxInt(usize);
-            var largest: usize = 0;
-            for (numbers[i..j]) |num| {
-                if (num < smallest) smallest = num;
-                if (num > largest) largest = num;
-            }
+            var smallest = std.mem.min(usize, numbers[i..j]);
+            var largest = std.mem.max(usize, numbers[i..j]);
             return smallest + largest;
         }
     }
