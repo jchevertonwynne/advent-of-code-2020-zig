@@ -24,13 +24,11 @@ fn solve(part1: *u25, part2: *u25, allocator: *std.mem.Allocator) !void {
     defer allocator.free(spoken);
 
     const context = struct {
-        pub fn hash(self: @This(), key: u25) u64 {
-            _ = self;
+        pub fn hash(_: @This(), key: u25) u64 {
             return key;
         }
 
-        pub fn eql(self: @This(), a: u25, b: u25) bool {
-            _ = self;
+        pub fn eql(_: @This(), a: u25, b: u25) bool {
             return a == b;
         }
     };
@@ -56,7 +54,7 @@ fn solve(part1: *u25, part2: *u25, allocator: *std.mem.Allocator) !void {
         } else &spoken[lastSpoken];
 
         var next = nextP.*;
-        
+
         if (next != 0) {
             next = turn - next;
         }

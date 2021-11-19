@@ -10,15 +10,14 @@ const day07 = @import("./days/day07.zig");
 const day08 = @import("./days/day08.zig");
 const day09 = @import("./days/day09.zig");
 const day15 = @import("./days/day15.zig");
-const utils = @import("util.zig");
+const util = @import("util.zig");
 
-const Contents = utils.Contents;
+const Contents = util.Contents;
 
 pub fn main() !void {
-    var buf = try std.heap.page_allocator.alloc(u8, 1 << 28);
-    defer std.heap.page_allocator.free(buf);
-    var bufAllocator = std.heap.FixedBufferAllocator.init(buf);
-    var allocator = &bufAllocator.allocator;
+    var arenaAlloc = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arenaAlloc.deinit();
+    var allocator = &arenaAlloc.allocator;
     // var genAllocator = std.heap.GeneralPurposeAllocator(.{}){};
     // defer std.debug.assert(!genAllocator.deinit());
     // var allocator = &genAllocator.allocator;
@@ -41,7 +40,7 @@ pub fn main() !void {
     try day07.run(contents.day07, &writer, allocator);
     try day08.run(contents.day08, &writer, allocator);
     try day09.run(contents.day09, &writer, allocator);
-    try day15.run(&writer, allocator);
+    // try day15.run(&writer, allocator);
 
     var end = std.time.nanoTimestamp();
 
