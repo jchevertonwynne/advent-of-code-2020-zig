@@ -8,17 +8,17 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
     var numbers = try loadNumbers(contents, allocator);
-    defer numbers.deinit();
+    defer allocator.free(numbers);
 
-    var p1 = try part1(numbers.items);
-    var p2 = try part2(numbers.items, p1);
+    var p1 = try part1(numbers);
+    var p2 = try part2(numbers, p1);
 
     var end = std.time.nanoTimestamp();
 
     try util.writeResponse(out, 9, p1, p2, end - start);
 }
 
-fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !ArrayList(usize) {
+fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) ![]usize {
     var numbers = ArrayList(usize).init(allocator);
     errdefer numbers.deinit();
 
@@ -26,7 +26,7 @@ fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !ArrayList(usize) 
     while (lines.next()) |line|
         try numbers.append(try std.fmt.parseInt(usize, line, 10));
 
-    return numbers;
+    return numbers.toOwnedSlice();
 }
 
 fn part1(numbers: []usize) !usize {

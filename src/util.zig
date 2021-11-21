@@ -190,28 +190,17 @@ pub fn writeResponse(out: anytype, day: usize, part1: anytype, part2: anytype, t
 
 pub var ZeroAllocator = std.mem.Allocator{ .allocFn = fakeAlloc, .resizeFn = fakeResize };
 
-fn fakeAlloc(allocator: *std.mem.Allocator, n: usize, ptr_align: u29, len_align: u29, ra: usize) ![]u8 {
-    _ = allocator;
-    _ = n;
-    _ = ptr_align;
-    _ = len_align;
-    _ = ra;
+fn fakeAlloc(_: *std.mem.Allocator, _: usize, _: u29, _: u29, _: usize) ![]u8 {
     @panic("never call me please");
 }
 
 fn fakeResize(
-    allocator: *std.mem.Allocator,
-    buf: []u8,
-    buf_align: u29,
-    new_size: usize,
-    len_align: u29,
-    return_address: usize,
+    _: *std.mem.Allocator,
+    _: []u8,
+    _: u29,
+    _: usize,
+    _: u29,
+    _: usize,
 ) std.mem.Allocator.Error!usize {
-    _ = allocator;
-    _ = buf;
-    _ = buf_align;
-    _ = new_size;
-    _ = len_align;
-    _ = return_address;
     @panic("never call me please");
 }

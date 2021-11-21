@@ -8,15 +8,15 @@ pub fn run(contents: []u8, out: anytype, allocator: *std.mem.Allocator) !void {
     var start = std.time.nanoTimestamp();
 
     var machine = try Machine.fromString(contents, allocator);
-    defer machine.instructions.deinit();
+    defer allocator.free(machine.instructions);
 
-    var storage = try allocator.alloc(bool, machine.instructions.items.len * 2);
+    var storage = try allocator.alloc(bool, machine.instructions.len * 2);
     defer allocator.free(storage);
-    var seen = storage[0..machine.instructions.items.len];
+    var seen = storage[0..machine.instructions.len];
 
     var p1 = part1(&machine, seen);
 
-    var criticalInstructions = storage[machine.instructions.items.len..];
+    var criticalInstructions = storage[machine.instructions.len..];
     std.mem.copy(bool, criticalInstructions, seen);
 
     var p2 = try part2(&machine, seen, criticalInstructions);
@@ -33,7 +33,7 @@ fn part1(machine: *Machine, seen: []bool) isize {
 }
 
 fn part2(machine: *Machine, seen: []bool, criticalInstructions: []bool) !isize {
-    for (machine.instructions.items) |*instruction, i| {
+    for (machine.instructions) |*instruction, i| {
         if (criticalInstructions[i] and instruction.transform()) {
             if (machine.run_to_loop(seen) == .ReachedEnd)
                 return machine.accumulator;
@@ -76,7 +76,7 @@ const Machine = struct {
     const Self = @This();
 
     index: isize,
-    instructions: ArrayList(Instruction),
+    instructions: []Instruction,
     accumulator: isize,
 
     fn fromString(source: []u8, allocator: *std.mem.Allocator) !Self {
@@ -103,10 +103,10 @@ const Machine = struct {
             try instructions.append(instruction);
         }
 
-        return Self.new(instructions);
+        return Self.new(instructions.toOwnedSlice());
     }
 
-    fn new(instructions: ArrayList(Instruction)) Self {
+    fn new(instructions: []Instruction) Self {
         return .{ .index = 0, .instructions = instructions, .accumulator = 0 };
     }
 
@@ -116,7 +116,7 @@ const Machine = struct {
     }
 
     fn step(self: *Self) void {
-        switch (self.instructions.items[@bitCast(usize, self.index)]) {
+        switch (self.instructions[@bitCast(usize, self.index)]) {
             .Acc => |val| {
                 self.accumulator += val;
                 self.index += 1;
@@ -137,7 +137,7 @@ const Machine = struct {
         while (true) {
             self.step();
             var ind = @bitCast(usize, self.index);
-            if (ind >= self.instructions.items.len)
+            if (ind >= self.instructions.len)
                 return .ReachedEnd;
             if (seen[ind])
                 return .Looped;
