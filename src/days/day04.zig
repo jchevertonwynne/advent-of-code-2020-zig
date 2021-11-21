@@ -20,13 +20,11 @@ fn solve(contents: []u8, p1: *usize, p2: *usize) void {
     while (records.next()) |recordString| {
         var record = Record.fromString(recordString);
 
-        if (record.valid1()) {
+        if (record.valid1())
             p1.* += 1;
-        }
 
-        if (record.valid2()) {
+        if (record.valid2())
             p2.* += 1;
-        }
     }
 }
 
@@ -117,9 +115,8 @@ const Record = struct {
 
     fn validHeight(self: Self) bool {
         var heightString = self.height orelse return false;
-        if (heightString.len < 4) {
+        if (heightString.len < 4)
             return false;
-        }
 
         var unit = heightString[heightString.len - 2 ..];
         var num = heightString[0 .. heightString.len - 2];
@@ -129,9 +126,8 @@ const Record = struct {
         } else if (std.mem.eql(u8, unit, "in")) {
             var inches = std.fmt.parseInt(usize, num, 10) catch return false;
             return 59 <= inches and inches <= 76;
-        } else {
+        } else
             return false;
-        }
     }
 
     fn validHairColour(self: Self) bool {
@@ -144,9 +140,8 @@ const Record = struct {
         var eyeColour = self.eyeColour orelse return false;
         const options = [_]*const [3:0]u8{ "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
         inline for (options) |opt| {
-            if (std.mem.eql(u8, eyeColour, opt)) {
+            if (std.mem.eql(u8, eyeColour, opt))
                 return true;
-            }
         }
         return false;
     }
@@ -160,9 +155,8 @@ const Record = struct {
 
 fn allNumeric(in: []const u8) bool {
     for (in) |i| {
-        if (!('0' <= i and i <= '9')) {
+        if (!('0' <= i and i <= '9'))
             return false;
-        }
     }
 
     return true;
@@ -170,9 +164,8 @@ fn allNumeric(in: []const u8) bool {
 
 fn allAlphaNumeric(in: []const u8) bool {
     for (in) |i| {
-        if (!(('0' <= i and i <= '9') or ('a' <= i and i <= 'f'))) {
+        if (!(('0' <= i and i <= '9') or ('a' <= i and i <= 'f')))
             return false;
-        }
     }
 
     return true;

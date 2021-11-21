@@ -36,6 +36,7 @@ fn solve(part1: *u25, part2: *u25, allocator: *std.mem.Allocator) !void {
     };
 
     var spokenLarge = std.HashMap(u25, u25, context, 80).init(allocator);
+    try spokenLarge.ensureCapacity(1_200_000);
     defer spokenLarge.deinit();
 
     for (spoken) |*val|
@@ -49,25 +50,24 @@ fn solve(part1: *u25, part2: *u25, allocator: *std.mem.Allocator) !void {
     while (turn < maxTurn) : (turn += 1) {
         var nextP = if (lastSpoken > cutoff) block: {
             var found = try spokenLarge.getOrPut(lastSpoken);
-            if (!found.found_existing) {
+            if (!found.found_existing)
                 found.value_ptr.* = 0;
-            }
             break :block found.value_ptr;
         } else &spoken[lastSpoken];
 
         var next = nextP.*;
         
-        if (next != 0) {
+        if (next != 0)
             next = turn - next;
-        }
 
         nextP.* = turn;
         lastSpoken = next;
 
-        if (turn == 2019) {
+        if (turn == 2019)
             part1.* = lastSpoken;
-        }
     }
+
+    try std.io.getStdOut().writer().print("{}\n", .{spokenLarge.count()});
 
     part2.* = lastSpoken;
 }

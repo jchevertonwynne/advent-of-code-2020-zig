@@ -20,18 +20,13 @@ pub fn run(contents: []u8, out: anytype) !void {
                 seat += shift;
             }
         }
-        if (seat > p1) {
-            p1 = seat;
-        }
-        if (seat < smallest) {
-            smallest = seat;
-        }
+        p1 = std.math.max(p1, seat);
+        smallest = std.math.min(smallest, seat);
         p2 ^= seat;
     }
 
-    while (smallest <= p1) : (smallest += 1) {
+    while (smallest <= p1) : (smallest += 1)
         p2 ^= smallest;
-    }
 
     var end = std.time.nanoTimestamp();
 

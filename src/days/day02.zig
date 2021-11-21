@@ -20,12 +20,10 @@ fn solve(contents: []u8, part1: *usize, part2: *usize) !void {
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
         var e = (try Entry.parse(&util.ZeroAllocator, line)).value;
-        if (e.valid1()) {
+        if (e.valid1())
             part1.* += 1;
-        }
-        if (e.valid2()) {
+        if (e.valid2())
             part2.* += 1;
-        }
     }
 }
 
@@ -38,9 +36,8 @@ const Entry = struct {
     fn valid1(self: Self) bool {
         var count: usize = 0;
         for (self.password) |c| {
-            if (c == self.rule.char) {
+            if (c == self.rule.char)
                 count += 1;
-            }
         }
 
         return count >= self.rule.min and count <= self.rule.max;
@@ -51,15 +48,13 @@ const Entry = struct {
         var secondPass = false;
 
         if (self.rule.min <= self.password.len) {
-            if (self.password[self.rule.min - 1] == self.rule.char) {
+            if (self.password[self.rule.min - 1] == self.rule.char)
                 firstPass = true;
-            }
         }
 
         if (self.rule.max <= self.password.len) {
-            if (self.password[self.rule.max - 1] == self.rule.char) {
+            if (self.password[self.rule.max - 1] == self.rule.char)
                 secondPass = true;
-            }
         }
 
         return firstPass != secondPass;

@@ -23,9 +23,8 @@ fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !ArrayList(usize) 
     errdefer numbers.deinit();
 
     var lines = std.mem.tokenize(u8, contents, "\n");
-    while (lines.next()) |line| {
+    while (lines.next()) |line|
         try numbers.append(try std.fmt.parseInt(usize, line, 10));
-    }
 
     return numbers;
 }
@@ -36,13 +35,11 @@ fn part1(numbers: []usize) !usize {
         var window = numbers[ind .. ind + 25];
         outer: for (window) |a, ind2| {
             for (window[ind2 + 1 ..]) |b| {
-                if (a + b == number) {
+                if (a + b == number)
                     break :outer;
-                }
             }
-        } else {
+        } else
             return number;
-        }
     }
 
     return error.AnswerNotFound;

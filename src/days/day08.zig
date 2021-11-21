@@ -35,9 +35,8 @@ fn part1(machine: *Machine, seen: []bool) isize {
 fn part2(machine: *Machine, seen: []bool, criticalInstructions: []bool) !isize {
     for (machine.instructions.items) |*instruction, i| {
         if (criticalInstructions[i] and instruction.transform()) {
-            if (machine.run_to_loop(seen) == .ReachedEnd) {
+            if (machine.run_to_loop(seen) == .ReachedEnd)
                 return machine.accumulator;
-            }
 
             _ = instruction.transform();
             machine.reset();
@@ -91,9 +90,8 @@ const Machine = struct {
             var numS = line[5..];
 
             var num = try std.fmt.parseInt(isize, numS, 10);
-            if (sign == '-') {
+            if (sign == '-')
                 num = try std.math.negate(num);
-            }
 
             var instruction = switch (ins[0]) {
                 'a' => Instruction{ .Acc = num },
@@ -139,12 +137,10 @@ const Machine = struct {
         while (true) {
             self.step();
             var ind = @bitCast(usize, self.index);
-            if (ind >= self.instructions.items.len) {
+            if (ind >= self.instructions.items.len)
                 return .ReachedEnd;
-            }
-            if (seen[ind]) {
+            if (seen[ind])
                 return .Looped;
-            }
             seen[ind] = true;
         }
     }

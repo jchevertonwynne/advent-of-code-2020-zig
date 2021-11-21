@@ -42,9 +42,8 @@ fn runSlope(contents: []u8, width: usize, right: usize, down: usize) usize {
     var trees: usize = 0;
 
     while (row * width < contents.len) {
-        if (contents[row * width + col] == '#') {
+        if (contents[row * width + col] == '#')
             trees += 1;
-        }
         row += down;
         col += right;
         col %= width - 1;

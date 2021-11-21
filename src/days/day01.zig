@@ -23,9 +23,8 @@ fn loadNumbers(contents: []u8, allocator: *std.mem.Allocator) !ArrayList(usize) 
     errdefer numbers.deinit();
 
     var lines = std.mem.tokenize(u8, contents, "\n");
-    while (lines.next()) |line| {
+    while (lines.next()) |line|
         try numbers.append(try std.fmt.parseInt(usize, line, 10));
-    }
 
     return numbers;
 }
@@ -35,9 +34,8 @@ fn part1(numbers: []usize) !usize {
 
     for (numbers) |number| {
         if (number <= 2020) {
-            if (seen[2020 - number]) {
+            if (seen[2020 - number])
                 return number * (2020 - number);
-            }
             seen[number] = true;
         }
     }
@@ -52,16 +50,14 @@ fn part2(numbers: []usize) !usize {
         for (numbers[ind + 1 ..]) |number2| {
             var sum = number1 + number2;
             var mult = number1 * number2;
-            if (sum < 2020) {
+            if (sum < 2020)
                 pairsSeen[sum] = @truncate(u22, mult);
-            }
         }
     }
 
     for (numbers) |number| {
-        if (pairsSeen[2020 - number] != 0) {
+        if (pairsSeen[2020 - number] != 0)
             return number * pairsSeen[2020 - number];
-        }
     }
 
     return error.AnswerNotFound;

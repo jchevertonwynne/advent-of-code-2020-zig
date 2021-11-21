@@ -20,14 +20,16 @@ pub fn run(contents: []u8, out: anytype) !void {
 fn solve(contents: []u8, p1: *usize, p2: *usize) void {
     var groups = std.mem.split(u8, contents, "\n\n");
     while (groups.next()) |groupString| {
-        if (groupString.len == 0) continue;
+        if (groupString.len == 0) 
+            continue;
 
         var anyAnswered: u26 = 0;
         var allAnswered: u26 = std.math.maxInt(u26);
 
         var people = std.mem.split(u8, groupString, "\n");
         while (people.next()) |personString| {
-            if (personString.len == 0) continue;
+            if (personString.len == 0)
+                continue;
 
             var answered: u26 = 0;
             for (personString) |questionAnswer| {

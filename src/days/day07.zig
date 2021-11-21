@@ -50,9 +50,8 @@ const BagTree = struct {
 
             var rest = line[endOfColour + 14 ..];
 
-            if (std.mem.eql(u8, rest, "no other bags.")) {
+            if (std.mem.eql(u8, rest, "no other bags."))
                 continue;
-            }
 
             rest = rest[0 .. rest.len - 1];
 
@@ -85,9 +84,8 @@ const BagTree = struct {
 
     fn deinit(self: *Self) void {
         var it = self.bags.valueIterator();
-        while (it.next()) |bag| {
+        while (it.next()) |bag|
             bag.*.deinit();
-        }
         self.bagSource.deinit();
         self.bags.deinit();
     }
@@ -118,9 +116,8 @@ const Bag = struct {
     fn totalContains(b: Self) usize {
         var res: usize = 0;
 
-        for (b.children.items) |child| {
+        for (b.children.items) |child|
             res += child.count * (1 + child.bag.totalContains());
-        }
 
         return res;
     }
