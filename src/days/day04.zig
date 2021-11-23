@@ -55,25 +55,29 @@ const Record = struct {
         var record = Record.new();
         var lines = std.mem.split(u8, source, "\n");
         while (lines.next()) |line| {
-            if (line.len == 0) continue;
+            if (line.len == 0) 
+                continue;
+
+            var mappings = [_]struct{field: [:0]const u8, ptr: *?[]const u8} {
+                .{.field = "byr", .ptr = &record.birthYear},
+                .{.field = "iyr", .ptr = &record.issueYear},
+                .{.field = "eyr", .ptr = &record.expirationYear},
+                .{.field = "hgt", .ptr = &record.height},
+                .{.field = "hcl", .ptr = &record.hairColour},
+                .{.field = "ecl", .ptr = &record.eyeColour},
+                .{.field = "pid", .ptr = &record.passportID},
+            };
+
             var categories = std.mem.split(u8, line, " ");
             while (categories.next()) |category| {
                 var cat = category[0..3];
                 var val = category[4..];
-                if (std.mem.eql(u8, cat, "byr")) {
-                    record.birthYear = val;
-                } else if (std.mem.eql(u8, cat, "iyr")) {
-                    record.issueYear = val;
-                } else if (std.mem.eql(u8, cat, "eyr")) {
-                    record.expirationYear = val;
-                } else if (std.mem.eql(u8, cat, "hgt")) {
-                    record.height = val;
-                } else if (std.mem.eql(u8, cat, "hcl")) {
-                    record.hairColour = val;
-                } else if (std.mem.eql(u8, cat, "ecl")) {
-                    record.eyeColour = val;
-                } else if (std.mem.eql(u8, cat, "pid")) {
-                    record.passportID = val;
+
+                for (mappings) |m| {
+                    if (std.mem.eql(u8, m.field, cat)) {
+                        m.ptr.* = val;
+                        break;
+                    }
                 }
             }
         }
@@ -126,8 +130,7 @@ const Record = struct {
         } else if (std.mem.eql(u8, unit, "in")) {
             var inches = std.fmt.parseInt(usize, num, 10) catch return false;
             return 59 <= inches and inches <= 76;
-        } else
-            return false;
+        } else return false;
     }
 
     fn validHairColour(self: Self) bool {

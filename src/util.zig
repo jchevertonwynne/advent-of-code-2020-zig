@@ -26,9 +26,8 @@ pub fn PoolAllocator(comptime T: type, comptime size: usize) type {
         }
 
         pub fn deinit(self: *Self) void {
-            for (self.inner.items) |contents| {
+            for (self.inner.items) |contents|
                 self.allocator.free(contents);
-            }
             self.inner.deinit();
         }
     };
@@ -52,9 +51,8 @@ pub fn HashSet(comptime T: type) type {
 
         pub fn insertCheck(self: *Self, val: T) !bool {
             var contained = self.contains(val);
-            if (contained) {
+            if (contained)
                 return false;
-            }
             try self.insert(val);
             return true;
         }
@@ -108,9 +106,8 @@ pub fn RC(comptime T: type) type {
 
         pub fn destroy(self: Self) void {
             self.inner.count -= 1;
-            if (self.inner.count == 0) {
+            if (self.inner.count == 0)
                 self.alloc.destroy(self.inner);
-            }
         }
     };
 }
@@ -177,15 +174,14 @@ pub const Contents = struct {
     }
 };
 
-pub fn writeResponse(out: anytype, day: usize, part1: anytype, part2: anytype, time: i128) !void {
+pub fn writeResponse(out: anytype, comptime day: usize, part1: anytype, part2: anytype, time: i128) !void {
     try out.print("problem {}:\n", .{day});
     try out.print("\tpart 1:\t{}\n", .{part1});
     try out.print("\tpart 2:\t{}\n", .{part2});
-    if (@divFloor(time, 1_000) < 1000) {
-        try out.print("\ttime:\t{d}us\n\n", .{@divFloor(time, 1_000)});
-    } else {
+    if (@divFloor(time, 1_000) < 1000)
+        try out.print("\ttime:\t{d}us\n\n", .{@divFloor(time, 1_000)})
+    else
         try out.print("\ttime:\t{d}ms\n\n", .{@divFloor(time, 1_000_000)});
-    }
 }
 
 pub var ZeroAllocator = std.mem.Allocator{ .allocFn = fakeAlloc, .resizeFn = fakeResize };

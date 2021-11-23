@@ -40,7 +40,7 @@ pub fn main() !void {
     try day07.run(contents.day07, &writer, allocator);
     try day08.run(contents.day08, &writer, allocator);
     try day09.run(contents.day09, &writer, allocator);
-    // try day15.run(&writer, allocator);
+    try day15.run(&writer, allocator);
 
     var end = std.time.nanoTimestamp();
 

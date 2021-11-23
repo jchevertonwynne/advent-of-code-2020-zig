@@ -11,7 +11,9 @@ pub fn run(contents: []u8, out: anytype) !void {
 
     var lines = std.mem.split(u8, contents, "\n");
     while (lines.next()) |line| {
-        if (std.mem.eql(u8, line, "")) continue;
+        if (line.len == 0) 
+            continue;
+            
         var seat: usize = 0;
         for (line) |char, i| {
             if (char == 'B' or char == 'R') {

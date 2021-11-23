@@ -19,10 +19,10 @@ pub fn run(contents: []u8, out: anytype) !void {
 fn solve(contents: []u8, part1: *usize, part2: *usize) !void {
     var lines = std.mem.tokenize(u8, contents, "\n");
     while (lines.next()) |line| {
-        var e = (try Entry.parse(&util.ZeroAllocator, line)).value;
-        if (e.valid1())
+        var entry = (try Entry.parse(&util.ZeroAllocator, line)).value;
+        if (entry.valid1())
             part1.* += 1;
-        if (e.valid2())
+        if (entry.valid2())
             part2.* += 1;
     }
 }
@@ -44,18 +44,8 @@ const Entry = struct {
     }
 
     fn valid2(self: Self) bool {
-        var firstPass = false;
-        var secondPass = false;
-
-        if (self.rule.min <= self.password.len) {
-            if (self.password[self.rule.min - 1] == self.rule.char)
-                firstPass = true;
-        }
-
-        if (self.rule.max <= self.password.len) {
-            if (self.password[self.rule.max - 1] == self.rule.char)
-                secondPass = true;
-        }
+        var firstPass = self.rule.min <= self.password.len and self.password[self.rule.min - 1] == self.rule.char;
+        var secondPass = self.rule.max <= self.password.len and self.password[self.rule.max - 1] == self.rule.char;
 
         return firstPass != secondPass;
     }

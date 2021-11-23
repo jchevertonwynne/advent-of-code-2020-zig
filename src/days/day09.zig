@@ -38,8 +38,7 @@ fn part1(numbers: []usize) !usize {
                 if (a + b == number)
                     break :outer;
             }
-        } else
-            return number;
+        } else return number;
     }
 
     return error.AnswerNotFound;
