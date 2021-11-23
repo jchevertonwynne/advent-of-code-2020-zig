@@ -30,6 +30,20 @@ fn solve(part1: *u25, part2: *u25, allocator: *std.mem.Allocator) !void {
 
     var lastSpoken: u25 = numbers[numbers.len - 1];
     var turn: u25 = numbers.len + 1;
+    while (turn < 2019) : (turn += 1) {
+        var nextP = &spoken[lastSpoken];
+
+        var next = nextP.*;
+
+        if (next != 0)
+            next = turn - next;
+
+        nextP.* = turn;
+        lastSpoken = next;
+    }
+
+    part1.* = lastSpoken;
+
     while (turn < maxTurn) : (turn += 1) {
         var nextP = &spoken[lastSpoken];
 
@@ -40,9 +54,6 @@ fn solve(part1: *u25, part2: *u25, allocator: *std.mem.Allocator) !void {
 
         nextP.* = turn;
         lastSpoken = next;
-
-        if (turn == 2019)
-            part1.* = lastSpoken;
     }
 
     part2.* = lastSpoken;

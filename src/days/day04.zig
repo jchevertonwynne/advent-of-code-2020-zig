@@ -55,17 +55,17 @@ const Record = struct {
         var record = Record.new();
         var lines = std.mem.split(u8, source, "\n");
         while (lines.next()) |line| {
-            if (line.len == 0) 
+            if (line.len == 0)
                 continue;
 
-            var mappings = [_]struct{field: [:0]const u8, ptr: *?[]const u8} {
-                .{.field = "byr", .ptr = &record.birthYear},
-                .{.field = "iyr", .ptr = &record.issueYear},
-                .{.field = "eyr", .ptr = &record.expirationYear},
-                .{.field = "hgt", .ptr = &record.height},
-                .{.field = "hcl", .ptr = &record.hairColour},
-                .{.field = "ecl", .ptr = &record.eyeColour},
-                .{.field = "pid", .ptr = &record.passportID},
+            var mappings = [_]struct { field: [:0]const u8, ptr: *?[]const u8 }{
+                .{ .field = "byr", .ptr = &record.birthYear },
+                .{ .field = "iyr", .ptr = &record.issueYear },
+                .{ .field = "eyr", .ptr = &record.expirationYear },
+                .{ .field = "hgt", .ptr = &record.height },
+                .{ .field = "hcl", .ptr = &record.hairColour },
+                .{ .field = "ecl", .ptr = &record.eyeColour },
+                .{ .field = "pid", .ptr = &record.passportID },
             };
 
             var categories = std.mem.split(u8, line, " ");
